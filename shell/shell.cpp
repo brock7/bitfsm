@@ -4,14 +4,6 @@
 
 #include "../bitfsm.h"
 
-enum Status {
-	S_BEGIN,
-	S_1,
-	S_2,
-	S_3,
-	S_END,
-};
-
 struct ObjToStatus {
 	int operator ()(const std::string &_obj) {
 		if(_obj == "begin") {
@@ -55,8 +47,27 @@ typedef fsm::FSM<5, 6, std::string, ObjToStatus, ObjToCommand> Fsm;
 class MyStepHandler : public Fsm::StepHandler {
 
 public:
-	virtual void handleStep(int _src, int _tgt) {
-		printf("Status changed from %d to %d\n", _src, _tgt);
+	virtual void handleStep(const std::string &_srcTag, const std::string &_tgtTag) {
+		printf("Status changed from %s to %s\n", _srcTag.c_str(), _tgtTag.c_str());
+	}
+
+};
+
+class MyTagStreamer : public Fsm::TagStreamer {
+
+public:
+	virtual void write(std::fstream &_fs, const std::string &_tag) {
+		int _len = _tag.length() + 1;
+		_fs.write((char*)&_len, sizeof(_len));
+		_fs.write(_tag.c_str(), _len);
+	}
+
+	virtual void read(std::fstream &_fs, std::string &_tag) {
+		int _len = 0;
+		char _buf[1024];
+		_fs.read((char*)&_len, sizeof(_len));
+		_fs.read(_buf, _len);
+		_tag = _buf;
 	}
 
 };
@@ -68,11 +79,21 @@ int main(int argc, char* argv[]) {
 	Fsm sbs;
 
 	Fsm::StepHandler* hdl = new MyStepHandler;
+	Fsm::TagStreamer* str = new MyTagStreamer;
 	sbs.setStepHandler(hdl);
+	sbs.setTagStreamer(str);
+
+	{
+		sbs.registerRuleStepTag("begin");
+		sbs.registerRuleStepTag("1");
+		sbs.registerRuleStepTag("2");
+		sbs.registerRuleStepTag("3");
+		sbs.registerRuleStepTag("end");
+	}
 
 	{
 		sbs.setCurrentStep("begin");
-		sbs.setStopStep("end");
+		sbs.setTerminalStep("end");
 
 		params.reset();
 		params.add("_cmd0");
@@ -96,6 +117,14 @@ int main(int argc, char* argv[]) {
 	}
 
 	{
+		sbs.writeRuleSteps("backup.fsm");
+		sbs.reset();
+		sbs.readRuleSteps("backup.fsm");
+	}
+
+	{
+		sbs.setCurrentStep("begin");
+
 		sbs.walk("_cmd0");
 		done = sbs.isDone();
 
@@ -107,6 +136,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	delete hdl;
+	delete str;
 
 	system("pause");
 

@@ -8,6 +8,7 @@ del /f /s /q output\Debug\*.exp
 del /f /s /q output\Debug\*.lib
 del /f /s /q *.ncb
 del /f /s /q *.user
+del /f /s /q *.fsm
 
 rd /s /q temp\debug
 rd /s /q temp\release

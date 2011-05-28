@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <memory.h>
+#include <fstream>
 #include <vector>
 
 #ifndef _countof
@@ -27,6 +28,10 @@ namespace fsm {
 		}
 
 		~Bitset() {
+		}
+
+		void* ptr(void) {
+			return (void*)raw;
 		}
 
 		void clear(void) {
@@ -150,7 +155,7 @@ namespace fsm {
 		}
 
 	private:
-		static const int size = N / (32 + 1) + 1;
+		static const int size = (N - 1) / 32 + 1;
 		_u32 raw[size];
 
 	};
@@ -168,7 +173,20 @@ namespace fsm {
 		class StepHandler {
 
 		public:
-			virtual void handleStep(int _src, int _tgt) = 0;
+			virtual void handleStep(int _src, int _tgt) {
+			}
+
+			virtual void handleStep(const _Tc &_src, const _Tc &_tgt) {
+			}
+
+		};
+
+		class TagStreamer {
+
+		public:
+			virtual void write(std::fstream &_fs, const _Tc &_tag) = 0;
+
+			virtual void read(std::fstream &_fs, _Tc &_tag) = 0;
 
 		};
 
@@ -214,6 +232,7 @@ namespace fsm {
 		struct RuleStep {
 			int index;
 			StepColl steps;
+			_Tc tag;
 			RuleStep() {
 				index = -1;
 			}
@@ -239,11 +258,20 @@ namespace fsm {
 
 	public:
 		FSM() {
-			stopIndex = -1;
+			terminalIndex = -1;
 			handler = 0;
+			streamer = 0;
 		}
 
 		~FSM() {
+			reset();
+		}
+
+		void reset(void) {
+			current.status.clear();
+			current.index = -1;
+			clearRuleStep();
+			terminalIndex = -1;
 		}
 
 		bool setCurrentStep(int _index) {
@@ -262,24 +290,44 @@ namespace fsm {
 			return setCurrentStep(_index);
 		}
 
-		bool setStopStep(int _index) {
+		bool setTerminalStep(int _index) {
 			assert(_index >= 0 && _index < _countof(ruleSteps));
 			if(!(_index >= 0 && _index < _countof(ruleSteps))) {
 				return false;
 			}
-			stopIndex = _index;
+			terminalIndex = _index;
 
 			return true;
 		}
 
-		bool setStopStep(const _Tc &_obj) {
+		bool setTerminalStep(const _Tc &_obj) {
 			int _index = objToIndex(_obj);
 
-			return setStopStep(_index);
+			return setTerminalStep(_index);
 		}
 
 		void setStepHandler(StepHandler* _hdl) {
 			handler = _hdl;
+		}
+
+		void setTagStreamer(TagStreamer* _str) {
+			streamer = _str;
+		}
+
+		bool registerRuleStepTag(int _index, const _Tc &_tag) {
+			assert(_index >= 0 && _index < _countof(ruleSteps));
+			if(!(_index >= 0 && _index < _countof(ruleSteps))) {
+				return false;
+			}
+			ruleSteps[_index].tag = _tag;
+
+			return true;
+		}
+
+		bool registerRuleStepTag(const _Tc &_tag) {
+			int _index = objToIndex(_tag);
+
+			return registerRuleStepTag(_index, _tag);
 		}
 
 		bool addRuleStep(int _index, const Bitset<_Nc> &_cond, int _next, bool _exact = false) {
@@ -316,6 +364,7 @@ namespace fsm {
 			assert(_index >= 0 && _index < _countof(ruleSteps));
 			if(_index >= 0 && _index < _countof(ruleSteps)) {
 				ruleSteps[_index].index = -1;
+				ruleSteps[_index].tag = _Tc();
 				std::swap(ruleSteps[_index].steps, StepColl());
 			}
 		}
@@ -341,12 +390,15 @@ namespace fsm {
 			}
 			Bitset<_Nc> _bs; _bs.set(_status);
 
-			int _src = current.index;
+			int _srcIdx = current.index;
+			const _Tc &_srcTag = ruleSteps[current.index].tag;
 			bool _result = ruleSteps[current.index].walk(current, _bs, _exact);
-			int _tgt = current.index;
+			int _tgtIdx = current.index;
+			const _Tc &_tgtTag = ruleSteps[current.index].tag;
 
 			if(_result && handler) {
-				handler->handleStep(_src, _tgt);
+				handler->handleStep(_srcIdx, _tgtIdx);
+				handler->handleStep(_srcTag, _tgtTag);
 			}
 
 			return _result;
@@ -359,16 +411,94 @@ namespace fsm {
 		}
 
 		bool isDone(void) const {
-			return current.index == stopIndex;
+			return current.index == terminalIndex;
+		}
+
+		bool writeRuleSteps(const char* _file, int _ns = _Ns, int _nc = _Nc) {
+			bool _result = true;
+
+			std::fstream _fs(_file, std::ios_base::out | std::ios_base::binary);
+			if(_fs.fail()) {
+				_result = false;
+			} else {
+				_fs.write((char*)&_ns, sizeof(_ns));
+				_fs.write((char*)&_nc, sizeof(_nc));
+
+				_fs.write((char*)&terminalIndex, sizeof(terminalIndex));
+
+				for(int _i = 0; _i < _ns; ++_i) {
+					RuleStep &_rule = ruleSteps[_i];
+
+					_fs.write((char*)&_rule.index, sizeof(_rule.index));
+
+					int _rsl = (int)_rule.steps.size();
+					_fs.write((char*)&_rsl, sizeof(_rsl));
+					for(int _j = 0; _j < _rsl; ++_j) {
+						Step &_step = _rule.steps[_j];
+						int _rs = ((_nc - 1) / 8 + 1);
+						_fs.write((char*)_step.condition.ptr(), _rs);
+						_fs.write((char*)&_step.next, sizeof(_step.next));
+						_fs.write((char*)&_step.exact, sizeof(_step.exact));
+					}
+
+					if(streamer) {
+						streamer->write(_fs, _rule.tag);
+					}
+				}
+				_fs.close();
+			}
+
+			return _result;
+		}
+
+		bool readRuleSteps(const char* _file) {
+			bool _result = true;
+
+			std::fstream _fs(_file, std::ios_base::in | std::ios_base::binary);
+			if(_fs.fail()) {
+				_result = false;
+			} else {
+				int _ns = 0; int _nc = 0;
+				_fs.read((char*)&_ns, sizeof(_ns));
+				_fs.read((char*)&_nc, sizeof(_nc));
+
+				_fs.read((char*)&terminalIndex, sizeof(terminalIndex));
+
+				for(int _i = 0; _i < _ns; ++_i) {
+					RuleStep &_rule = ruleSteps[_i];
+
+					_fs.read((char*)&_rule.index, sizeof(_rule.index));
+
+					int _rsl = 0;
+					_fs.read((char*)&_rsl, sizeof(_rsl));
+					for(int _j = 0; _j < _rsl; ++_j) {
+						Step _step;
+						int _rs = ((_nc - 1) / 8 + 1);
+						_fs.read((char*)_step.condition.ptr(), _rs);
+						_fs.read((char*)&_step.next, sizeof(_step.next));
+						_fs.read((char*)&_step.exact, sizeof(_step.exact));
+						_rule.steps.push_back(_step);
+					}
+
+					if(streamer) {
+						streamer->read(_fs, _rule.tag);
+					}
+				}
+
+				_fs.close();
+			}
+
+			return _result;
 		}
 
 	private:
 		Status current;
 		RuleStep ruleSteps[_Ns];
-		int stopIndex;
+		int terminalIndex;
 		_CVi objToIndex;
 		_CVc objToCommand;
 		StepHandler* handler;
+		TagStreamer* streamer;
 
 	};
 
