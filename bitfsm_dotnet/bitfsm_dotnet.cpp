@@ -23,14 +23,41 @@
 ** CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string>
+#include "stdafx.h"
+#include "bitfsm_dotnet.h"
+#include "configfile.h"
 
-#include "../bitfsm.h"
+using namespace System;
+using namespace System::Runtime::InteropServices;
 
-struct ObjToStatus {
-	int operator ()(const std::string &_obj) {
+namespace fsm {
+
+	class Config : public Singleton<Config> {
+
+	public:
+		Config() {
+		}
+		virtual ~Config() {
+		}
+
+		ConfigFile &getGlobalCfg(void) {
+			return globalCfg;
+		}
+		ConfigFile &getStatusCfg(void) {
+			return statusCfg;
+		}
+		ConfigFile &getCommandCfg(void) {
+			return commandCfg;
+		}
+
+	private:
+		ConfigFile globalCfg;
+		ConfigFile statusCfg;
+		ConfigFile commandCfg;
+
+	};
+
+	int ObjToStatus::operator ()(const std::string &_obj) {
 		if(_obj == "begin") {
 			return 0;
 		} else if(_obj == "1") {
@@ -45,10 +72,8 @@ struct ObjToStatus {
 
 		return -1;
 	}
-};
 
-struct ObjToCommand {
-	int operator ()(const std::string &_obj) {
+	int ObjToCommand::operator ()(const std::string &_obj) {
 		if(_obj == "_cmd0") {
 			return 0;
 		} else if(_obj == "_cmd1") {
@@ -65,29 +90,14 @@ struct ObjToCommand {
 
 		return -1;
 	}
-};
 
-typedef fsm::FSM<5, 6, std::string, ObjToStatus, ObjToCommand> Fsm;
-
-class MyStepHandler : public Fsm::StepHandler {
-
-public:
-	virtual void handleStep(const std::string &_srcTag, const std::string &_tgtTag) {
-		printf("Status changed from %s to %s\n", _srcTag.c_str(), _tgtTag.c_str());
-	}
-
-};
-
-class MyTagStreamer : public Fsm::TagStreamer {
-
-public:
-	virtual void write(std::fstream &_fs, const std::string &_tag) {
+	void MyTagStreamer::write(std::fstream &_fs, const std::string &_tag) {
 		int _len = _tag.length() + 1;
 		_fs.write((char*)&_len, sizeof(_len));
 		_fs.write(_tag.c_str(), _len);
 	}
 
-	virtual void read(std::fstream &_fs, std::string &_tag) {
+	void MyTagStreamer::read(std::fstream &_fs, std::string &_tag) {
 		int _len = 0;
 		char _buf[1024];
 		_fs.read((char*)&_len, sizeof(_len));
@@ -95,75 +105,36 @@ public:
 		_tag = _buf;
 	}
 
+	std::string cliStringToStl(String^ _str) {
+		IntPtr _p = Marshal::StringToHGlobalAnsi(_str);
+		const char* _c_str = static_cast<char*>(_p.ToPointer());
+		std::string _result(_c_str);
+		Marshal::FreeHGlobal(_p);
+
+		return _result;
+	}
+
+	Bitfsm::Bitfsm() {
+		fsm = new Fsm;
+		streamer = new MyTagStreamer;
+		fsm->setTagStreamer(streamer);
+	}
+
+	Bitfsm::~Bitfsm() {
+		delete fsm;
+		delete streamer;
+		fsm = 0;
+	}
+
+	Void Bitfsm::config(String^ _globalCfg, String^ _statusCfg, String^ _commandCfg) {
+		std::string _glb = cliStringToStl(_globalCfg);
+		Config::getSingleton().getGlobalCfg().processFile(_glb);
+
+		std::string _stt = cliStringToStl(_statusCfg);
+		Config::getSingleton().getGlobalCfg().processFile(_stt);
+
+		std::string _cmd = cliStringToStl(_commandCfg);
+		Config::getSingleton().getGlobalCfg().processFile(_cmd);
+	}
+
 };
-
-int main(int argc, char* argv[]) {
-	bool done = false;
-
-	Fsm::CommandParams params;
-	Fsm sbs;
-
-	Fsm::StepHandler* hdl = new MyStepHandler;
-	Fsm::TagStreamer* str = new MyTagStreamer;
-	sbs.setStepHandler(hdl);
-	sbs.setTagStreamer(str);
-
-	{
-		sbs.registerRuleStepTag("begin");
-		sbs.registerRuleStepTag("1");
-		sbs.registerRuleStepTag("2");
-		sbs.registerRuleStepTag("3");
-		sbs.registerRuleStepTag("end");
-	}
-
-	{
-		sbs.setCurrentStep("begin");
-		sbs.setTerminalStep("end");
-
-		params.reset();
-		params.add("_cmd0");
-		sbs.addRuleStep("begin", params, "1");
-
-		params.reset();
-		params.add("_cmd1");
-		sbs.addRuleStep("begin", params, "2");
-
-		params.reset();
-		params.add("_cmd3");
-		sbs.addRuleStep("1", params, "3");
-
-		params.reset();
-		params.add("_cmd4");
-		sbs.addRuleStep("2", params, "3");
-
-		params.reset();
-		params.add("_cmd5");
-		sbs.addRuleStep("3", params, "end");
-	}
-
-	{
-		sbs.writeRuleSteps("backup.fsm");
-		sbs.reset();
-		sbs.readRuleSteps("backup.fsm");
-	}
-
-	{
-		sbs.setCurrentStep("begin");
-
-		sbs.walk("_cmd0");
-		done = sbs.isDone();
-
-		sbs.walk("_cmd3");
-		done = sbs.isDone();
-
-		sbs.walk("_cmd5");
-		done = sbs.isDone();
-	}
-
-	delete hdl;
-	delete str;
-
-	system("pause");
-
-	return 0;
-}

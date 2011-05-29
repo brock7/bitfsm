@@ -15,7 +15,7 @@ rd /s /q temp\release
 rd /s /q temp
 rd /s /q output\debug
 rd /s /q output\release
-rd /s /q output
+rd /s /q bitfsm_editor\obj
 
 attrib *.suo -s -h -r
 del /f /s /q *.suo
