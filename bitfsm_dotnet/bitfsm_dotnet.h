@@ -71,6 +71,19 @@ namespace fsm {
 
 		Void config(String^ _globalCfg, String^ _statusCfg, String^ _commandCfg);
 
+		Boolean addRuleStep(String^ _index, cli::array<String^>^ _params, String^ _next, Boolean _exact);
+		Boolean removeRuleStep(String^ _index, cli::array<String^>^ _params);
+
+		Boolean setCurrentStep(String^ _index);
+		Boolean setTerminalStep(String^ _index);
+
+		Boolean writeRuleSteps(String^ _file, Int32 _ns, Int32 _nc);
+		Void reset();
+		Boolean readRuleSteps(String^ _file);
+
+		Boolean walk(String^ _cmd, Boolean _exact);
+		Boolean terminated();
+
 	protected:
 		Dict^ statusColl;
 		Dict^ commandColl;

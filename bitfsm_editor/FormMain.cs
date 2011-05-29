@@ -55,12 +55,12 @@ namespace fsm
 
         protected override void Dispose(bool disposing)
         {
-            bitfsm.Dispose();
             if (disposing && (components != null))
             {
                 components.Dispose();
             }
             base.Dispose(disposing);
+            bitfsm.Dispose();
         }
 
         private void FormMain_Load(object sender, EventArgs e)
@@ -87,16 +87,31 @@ namespace fsm
                 ToolStripMenuItem subMenu = new ToolStripMenuItem();
                 subMenu.Text = cmd;
                 subMenu.Name = cmd;
-                subMenu.Click += new EventHandler(menuAdd_Click);
+                subMenu.Click += new EventHandler(menuCmd_Click);
                 menuCommands.DropDownItems.Add(subMenu);
             }
         }
 
+        private void menuCmd_Click(object sender, EventArgs e)
+        {
+            // TODO
+        }
+
         private void menuAdd_Click(object sender, EventArgs e)
         {
-            Random rand = new Random();
-
             string text = (sender as ToolStripMenuItem).Text;
+
+            foreach (Control c in Controls)
+            {
+                if (c.Name == text)
+                {
+                    MessageBox.Show(this, "A status item named " + text + " already exists", "Bitfsm Editor", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    return;
+                }
+            }
+
+            Random rand = new Random();
 
             StatusItem si = new StatusItem();
             si.Location = new Point(Width / 2, Height / 2);
@@ -154,6 +169,9 @@ namespace fsm
             if (DialogResult.OK == fc.ShowDialog(this))
             {
                 relations.Add(new Relation(src, tgt, fc.Commands));
+
+                bitfsm.addRuleStep(src.Name, fc.Commands.ToArray(), tgt.Name, fc.Exact);
+
                 Refresh();
             }
         }
@@ -171,6 +189,8 @@ namespace fsm
 
                 int cr = 5;
                 e.Graphics.FillEllipse(Brushes.Red, p4.X - cr, p4.Y - cr, cr * 2, cr * 2);
+
+                e.Graphics.DrawString(r.CommandsString, new Font("", 8), Brushes.White, new PointF(p2.X, p2.Y));
             }
         }
 
@@ -191,6 +211,8 @@ namespace fsm
                 foreach (Relation r in tl)
                 {
                     relations.Remove(r);
+
+                    bitfsm.removeRuleStep(r.Source.Name, r.Commands.ToArray());
                 }
                 tl.Clear();
 
@@ -200,12 +222,23 @@ namespace fsm
 
         private void menuLoad_Click(object sender, EventArgs e)
         {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Bitfsm save file(*.fsm)|*.fsm|(All files(*.*)|*.*";
+            if (DialogResult.OK == ofd.ShowDialog(this))
+            {
+                bitfsm.readRuleSteps(ofd.FileName);
 
+                // TODO
+            }
         }
 
         private void menuSave_Click(object sender, EventArgs e)
         {
-
+            FormSaveFsm fsf = new FormSaveFsm(bitfsm);
+            if (DialogResult.OK == fsf.ShowDialog(this))
+            {
+                bitfsm.writeRuleSteps(fsf.FileName, fsf.StatusCount, fsf.CommandCount);
+            }
         }
 
         private void menuExit_Click(object sender, EventArgs e)

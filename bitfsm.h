@@ -291,6 +291,8 @@ namespace fsm {
 
 	public:
 		FSM() {
+			assert(_Nc > 0 && _Ns > 0);
+
 			terminalIndex = -1;
 			handler = 0;
 			streamer = 0;
@@ -368,6 +370,15 @@ namespace fsm {
 			if(!(_index >= 0 && _index < _countof(ruleSteps))) {
 				return false;
 			}
+
+			StepColl &_steps = ruleSteps[_index].steps;
+			for(StepColl::iterator _it = _steps.begin(); _it != _steps.end(); ++_it) {
+				Step &_step = *_it;
+				if(_step.condition == _cond) {
+					return false;
+				}
+			}
+
 			ruleSteps[_index].index = _index;
 			ruleSteps[_index].steps.push_back(Step(_cond, _next, _exact));
 
@@ -391,6 +402,41 @@ namespace fsm {
 			}
 
 			return addRuleStep(_index, _condBits, _next, _exact);
+		}
+
+		bool removeRuleStep(int _index, const Bitset<_Nc> &_cond) {
+			assert(_index >= 0 && _index < _countof(ruleSteps));
+			if(!(_index >= 0 && _index < _countof(ruleSteps))) {
+				return false;
+			}
+			StepColl &_steps = ruleSteps[_index].steps;
+			for(StepColl::iterator _it = _steps.begin(); _it != _steps.end(); ++_it) {
+				Step &_step = *_it;
+				if(_step.condition == _cond) {
+					_steps.erase(_it);
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		bool removeRuleStep(const _Tc &_indexObj, const Bitset<_Nc> &_cond) {
+			int _index = objToIndex(_indexObj);
+
+			return removeRuleStep(_index, _cond);
+		}
+
+		bool removeRuleStep(const _Tc &_indexObj, const CommandParams &_cond) {
+			int _index = objToIndex(_indexObj);
+			Bitset<_Nc> _condBits;
+			for(CommandParams::const_iterator _cit = _cond.begin(); _cit != _cond.end(); ++_cit) {
+				int _i = objToCommand(*_cit);
+				_condBits.set(_i);
+			}
+
+			return removeRuleStep(_index, _condBits);
 		}
 
 		void clearRuleStep(int _index) {
@@ -443,11 +489,13 @@ namespace fsm {
 			return walk(_status, _exact);
 		}
 
-		bool isDone(void) const {
+		bool terminated(void) const {
 			return current.index == terminalIndex;
 		}
 
 		bool writeRuleSteps(const char* _file, int _ns = _Ns, int _nc = _Nc) {
+			assert(_ns > 0 && _ns <= _Ns && _nc > 0 && _nc <= _Nc);
+
 			bool _result = true;
 
 			std::fstream _fs(_file, std::ios_base::out | std::ios_base::binary);
@@ -494,6 +542,7 @@ namespace fsm {
 				int _ns = 0; int _nc = 0;
 				_fs.read((char*)&_ns, sizeof(_ns));
 				_fs.read((char*)&_nc, sizeof(_nc));
+				assert(_ns > 0 && _ns <= _Ns && _nc > 0 && _nc <= _Nc);
 
 				_fs.read((char*)&terminalIndex, sizeof(terminalIndex));
 

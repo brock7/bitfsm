@@ -56,6 +56,21 @@ namespace fsm
             set { commands = value; }
         }
 
+        public String CommandsString
+        {
+            get
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (string cmd in commands)
+                {
+                    sb.Append(cmd);
+                    sb.Append("; ");
+                }
+
+                return sb.ToString();
+            }
+        }
+
         public Relation(StatusItem src, StatusItem tgt, HashSet<string> cmds)
         {
             source = src;

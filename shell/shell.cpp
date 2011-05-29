@@ -151,13 +151,13 @@ int main(int argc, char* argv[]) {
 		sbs.setCurrentStep("begin");
 
 		sbs.walk("_cmd0");
-		done = sbs.isDone();
+		done = sbs.terminated();
 
 		sbs.walk("_cmd3");
-		done = sbs.isDone();
+		done = sbs.terminated();
 
 		sbs.walk("_cmd5");
-		done = sbs.isDone();
+		done = sbs.terminated();
 	}
 
 	delete hdl;

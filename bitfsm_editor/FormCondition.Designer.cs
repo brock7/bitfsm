@@ -59,6 +59,7 @@ namespace fsm
             this.cmbSelector = new System.Windows.Forms.ComboBox();
             this.txtConditions = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.cbExact = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -76,7 +77,7 @@ namespace fsm
             this.btnCancel.Location = new System.Drawing.Point(148, 224);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
-            this.btnCancel.TabIndex = 2;
+            this.btnCancel.TabIndex = 5;
             this.btnCancel.Text = "&Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
@@ -86,7 +87,7 @@ namespace fsm
             this.btnOk.Location = new System.Drawing.Point(229, 224);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
-            this.btnOk.TabIndex = 3;
+            this.btnOk.TabIndex = 6;
             this.btnOk.Text = "&OK";
             this.btnOk.UseVisualStyleBackColor = true;
             this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
@@ -107,8 +108,7 @@ namespace fsm
             this.txtConditions.Multiline = true;
             this.txtConditions.Name = "txtConditions";
             this.txtConditions.Size = new System.Drawing.Size(221, 180);
-            this.txtConditions.TabIndex = 4;
-            this.txtConditions.TextChanged += new System.EventHandler(this.txtConditions_TextChanged);
+            this.txtConditions.TabIndex = 3;
             // 
             // label2
             // 
@@ -116,8 +116,18 @@ namespace fsm
             this.label2.Location = new System.Drawing.Point(12, 41);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(65, 12);
-            this.label2.TabIndex = 5;
+            this.label2.TabIndex = 2;
             this.label2.Text = "Conditions";
+            // 
+            // cbExact
+            // 
+            this.cbExact.AutoSize = true;
+            this.cbExact.Location = new System.Drawing.Point(14, 228);
+            this.cbExact.Name = "cbExact";
+            this.cbExact.Size = new System.Drawing.Size(54, 16);
+            this.cbExact.TabIndex = 4;
+            this.cbExact.Text = "Exact";
+            this.cbExact.UseVisualStyleBackColor = true;
             // 
             // FormCondition
             // 
@@ -125,7 +135,8 @@ namespace fsm
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(316, 259);
+            this.ClientSize = new System.Drawing.Size(316, 257);
+            this.Controls.Add(this.cbExact);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtConditions);
             this.Controls.Add(this.btnOk);
@@ -152,5 +163,6 @@ namespace fsm
         private System.Windows.Forms.ComboBox cmbSelector;
         private System.Windows.Forms.TextBox txtConditions;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.CheckBox cbExact;
     }
 }

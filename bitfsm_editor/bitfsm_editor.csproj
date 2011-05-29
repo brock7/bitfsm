@@ -77,6 +77,12 @@
     <Compile Include="FormMain.Designer.cs">
       <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormSaveFsm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormSaveFsm.Designer.cs">
+      <DependentUpon>FormSaveFsm.cs</DependentUpon>
+    </Compile>
     <Compile Include="IDragableItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -90,6 +96,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormSaveFsm.resx">
+      <DependentUpon>FormSaveFsm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="IDragableItem.resx">
       <DependentUpon>IDragableItem.cs</DependentUpon>

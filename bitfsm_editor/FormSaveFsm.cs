@@ -34,40 +34,47 @@ using System.Windows.Forms;
 
 namespace fsm
 {
-    public partial class FormCondition : Form
+    public partial class FormSaveFsm : Form
     {
         private Bitfsm bitfsm = null;
 
         private DialogResult dialogResult = DialogResult.Cancel;
 
-        private HashSet<string> commands = null;
-
-        public HashSet<string> Commands
+        public int StatusCount
         {
-            get { return commands; }
+            get { return (int)numStatusCount.Value; }
         }
 
-        private bool exact = false;
-
-        public bool Exact
+        public int CommandCount
         {
-            get { return exact; }
+            get { return (int)numCommandCount.Value; }
         }
 
-        public FormCondition()
+        public string FileName
+        {
+            get { return txtPath.Text; }
+        }
+
+        public FormSaveFsm()
         {
             InitializeComponent();
-
-            commands = new HashSet<string>();
         }
 
-        public FormCondition(Bitfsm bf)
+        public FormSaveFsm(Bitfsm bf)
         {
             InitializeComponent();
-
-            commands = new HashSet<string>();
 
             bitfsm = bf;
+        }
+
+        private void btnBrowse_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "Bitfsm save file(*.fsm)|*.fsm|(All files(*.*)|*.*";
+            if (DialogResult.OK == sfd.ShowDialog(this))
+            {
+                txtPath.Text = sfd.FileName;
+            }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -78,47 +85,22 @@ namespace fsm
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            string[] cmds = txtConditions.Text.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-            if (cmds.Count() != 0)
-            {
-                foreach (string c in cmds)
-                {
-                    commands.Add(c);
-                }
-
-                exact = cbExact.Checked;
-
-                dialogResult = DialogResult.OK;
-            }
-
+            dialogResult = DialogResult.OK;
             Close();
         }
 
         public new DialogResult ShowDialog(IWin32Window owner)
         {
-            base.ShowDialog(owner);
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "Bitfsm save file(*.fsm)|*.fsm|(All files(*.*)|*.*";
+            if (DialogResult.OK == sfd.ShowDialog(this))
+            {
+                txtPath.Text = sfd.FileName;
+
+                base.ShowDialog(owner);
+            }
 
             return dialogResult;
-        }
-
-        private void FormCondition_Load(object sender, EventArgs e)
-        {
-            foreach (string s in bitfsm.CommandColl)
-            {
-                cmbSelector.Items.Add(s);
-            }
-        }
-
-        private void cmbSelector_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(txtConditions.Text))
-            {
-                txtConditions.Text += cmbSelector.SelectedItem.ToString();
-            }
-            else
-            {
-                txtConditions.Text += "\r\n" + cmbSelector.SelectedItem.ToString();
-            }
         }
     }
 }

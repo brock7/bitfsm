@@ -175,4 +175,69 @@ namespace fsm {
 		}
 	}
 
+	Boolean Bitfsm::addRuleStep(String^ _index, cli::array<String^>^ _params, String^ _next, Boolean _exact) {
+		std::string _idx = cliStringToStl(_index);
+		std::string _nxt = cliStringToStl(_next);
+		Fsm::CommandParams _par;
+		_par.reset();
+		for each(String^ _param in _params) {
+			std::string _p = cliStringToStl(_param);
+			_par.add(_p);
+		}
+		Boolean _result = fsm->addRuleStep(_idx, _par, _nxt, _exact);
+
+		return _result;
+	}
+
+	Boolean Bitfsm::removeRuleStep(String^ _index, cli::array<String^>^ _params) {
+		std::string _idx = cliStringToStl(_index);
+		Fsm::CommandParams _par;
+		_par.reset();
+		for each(String^ _param in _params) {
+			std::string _p = cliStringToStl(_param);
+			_par.add(_p);
+		}
+		Boolean _result = fsm->removeRuleStep(_idx, _par);
+
+		return _result;
+	}
+
+	Boolean Bitfsm::setCurrentStep(String^ _index) {
+		std::string _s = cliStringToStl(_index);
+
+		return fsm->setCurrentStep(_s);
+	}
+
+	Boolean Bitfsm::setTerminalStep(String^ _index) {
+		std::string _s = cliStringToStl(_index);
+
+		return fsm->setTerminalStep(_s);
+	}
+
+	Boolean Bitfsm::writeRuleSteps(String^ _file, Int32 _ns, Int32 _nc) {
+		std::string _f = cliStringToStl(_file);
+
+		return fsm->writeRuleSteps(_f.c_str(), _ns, _nc);
+	}
+
+	Void Bitfsm::reset() {
+		fsm->reset();
+	}
+
+	Boolean Bitfsm::readRuleSteps(String^ _file) {
+		std::string _f = cliStringToStl(_file);
+
+		return fsm->readRuleSteps(_f.c_str());
+	}
+
+	Boolean Bitfsm::walk(String^ _cmd, Boolean _exact) {
+		std::string _c = cliStringToStl(_cmd);
+
+		return fsm->walk(_c, _exact);
+	}
+
+	Boolean Bitfsm::terminated() {
+		return fsm->terminated();
+	}
+
 };
