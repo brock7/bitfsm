@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** This source file is part of BITFSM
 **
 ** For the latest info, see http://code.google.com/p/bitfsm/
@@ -23,60 +23,44 @@
 ** CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-#include <string>
+namespace fsm
+{
+    public class Relation
+    {
+        private StatusItem source = null;
 
-#include "../bitfsm.h"
+        public StatusItem Source
+        {
+            get { return source; }
+            set { source = value; }
+        }
 
-using namespace System;
-using namespace System::Collections;
-using namespace System::Collections::Generic;
+        private StatusItem target = null;
 
-namespace fsm {
+        public StatusItem Target
+        {
+            get { return target; }
+            set { target = value; }
+        }
 
-	struct ObjToStatus {
-		int operator ()(const std::string &_obj);
-	};
+        private HashSet<string> commands = null;
 
-	struct ObjToCommand {
-		int operator ()(const std::string &_obj);
-	};
+        public HashSet<string> Commands
+        {
+            get { return commands; }
+            set { commands = value; }
+        }
 
-	typedef fsm::FSM<256, 256, std::string, ObjToStatus, ObjToCommand> Fsm;
-
-	class MyTagStreamer : public Fsm::TagStreamer {
-
-	public:
-		virtual void write(std::fstream &_fs, const std::string &_tag);
-		virtual void read(std::fstream &_fs, std::string &_tag);
-
-	};
-
-	typedef Dictionary<String^, Int32> Dict;
-
-	public ref class Bitfsm {
-
-	public:
-		property Dict::KeyCollection^ StatusColl {
-			Dict::KeyCollection^ get();
-		}
-		property Dict::KeyCollection^ CommandColl {
-			Dict::KeyCollection^ get();
-		}
-
-	public:
-		Bitfsm();
-		virtual ~Bitfsm();
-
-		Void config(String^ _globalCfg, String^ _statusCfg, String^ _commandCfg);
-
-	protected:
-		Dict^ statusColl;
-		Dict^ commandColl;
-		Fsm* fsm;
-		MyTagStreamer* streamer;
-
-	};
-
+        public Relation(StatusItem src, StatusItem tgt, HashSet<string> cmds)
+        {
+            source = src;
+            target = tgt;
+            commands = cmds;
+        }
+    }
 }

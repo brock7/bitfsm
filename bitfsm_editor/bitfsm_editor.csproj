@@ -65,21 +65,42 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FormCondition.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormCondition.Designer.cs">
+      <DependentUpon>FormCondition.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormMain.Designer.cs">
       <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
+    <Compile Include="IDragableItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="IDragableItem.designer.cs">
+      <DependentUpon>IDragableItem.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FormCondition.resx">
+      <DependentUpon>FormCondition.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="IDragableItem.resx">
+      <DependentUpon>IDragableItem.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StatusItem.resx">
+      <DependentUpon>StatusItem.cs</DependentUpon>
     </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -94,6 +115,13 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Relation.cs" />
+    <Compile Include="StatusItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="StatusItem.Designer.cs">
+      <DependentUpon>StatusItem.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

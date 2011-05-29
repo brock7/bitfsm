@@ -28,6 +28,7 @@
 
 #include <map>
 #include <string>
+#include <sstream>
 #include <locale>
 
 namespace fsm {

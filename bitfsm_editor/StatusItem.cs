@@ -25,27 +25,64 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Data;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 namespace fsm
 {
-    static class Program
+    public partial class StatusItem : IDragableItem
     {
-        private static Form form = null;
-
-        public static Form Form
+        public Point CenterLocation
         {
-            get { return form; }
+            get { return new Point(Location.X + Width / 2, Location.Y + Height / 2); }
         }
 
-        [STAThread]
-        static void Main()
+        public Point TopleftLocation
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            form = new FormMain();
-            Application.Run(form);
+            get { return new Point(Location.X, Location.Y); }
+        }
+
+        public Point ToprightLocation
+        {
+            get { return new Point(Location.X + Width, Location.Y); }
+        }
+
+        public Point BottomleftLocation
+        {
+            get { return new Point(Location.X, Location.Y + Height); }
+        }
+
+        public Point BottomrightLocation
+        {
+            get { return new Point(Location.X + Width, Location.Y + Height); }
+        }
+
+        public StatusItem()
+        {
+            InitializeComponent();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            (Program.Form as FormMain).RemoveItem(this);
+
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        private void StatusItem_Move(object sender, EventArgs e)
+        {
+            if (Parent != null)
+            {
+                Parent.Refresh();
+            }
         }
     }
 }

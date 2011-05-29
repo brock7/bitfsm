@@ -10,12 +10,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{ADB17AA8-F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{3409447D-2AF9-41A8-A808-46BBCDB8A896}"
 	ProjectSection(SolutionItems) = preProject
+		histroy.txt = histroy.txt
 		license.txt = license.txt
+		todo.txt = todo.txt
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bitfsm_dotnet", "bitfsm_dotnet\bitfsm_dotnet.vcproj", "{674E78F4-506F-4EA4-AF03-FCB70BECD219}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bitfsm_editor", "bitfsm_editor\bitfsm_editor.csproj", "{7DD769DF-82C5-4ACA-BA8C-50EAE43C80D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "editor_config", "editor_config", "{E4915B04-86BC-4701-A496-10530B145104}"
+	ProjectSection(SolutionItems) = preProject
+		output\command_config.cfg = output\command_config.cfg
+		output\global_config.cfg = output\global_config.cfg
+		output\status_config.cfg = output\status_config.cfg
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

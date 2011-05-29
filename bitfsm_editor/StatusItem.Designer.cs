@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** This source file is part of BITFSM
 **
 ** For the latest info, see http://code.google.com/p/bitfsm/
@@ -23,60 +23,38 @@
 ** CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+namespace fsm
+{
+    partial class StatusItem
+    {
+        /// <summary> 
+        /// 必需的设计器变量。
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
 
-#include <string>
+        #region 组件设计器生成的代码
 
-#include "../bitfsm.h"
+        /// <summary> 
+        /// 设计器支持所需的方法 - 不要
+        /// 使用代码编辑器修改此方法的内容。
+        /// </summary>
+        protected new void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // StatusItem
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.White;
+            this.Name = "StatusItem";
+            this.TitleColor = System.Drawing.Color.White;
+            this.Move += new System.EventHandler(this.StatusItem_Move);
+            this.ResumeLayout(false);
 
-using namespace System;
-using namespace System::Collections;
-using namespace System::Collections::Generic;
+        }
 
-namespace fsm {
+        #endregion
 
-	struct ObjToStatus {
-		int operator ()(const std::string &_obj);
-	};
-
-	struct ObjToCommand {
-		int operator ()(const std::string &_obj);
-	};
-
-	typedef fsm::FSM<256, 256, std::string, ObjToStatus, ObjToCommand> Fsm;
-
-	class MyTagStreamer : public Fsm::TagStreamer {
-
-	public:
-		virtual void write(std::fstream &_fs, const std::string &_tag);
-		virtual void read(std::fstream &_fs, std::string &_tag);
-
-	};
-
-	typedef Dictionary<String^, Int32> Dict;
-
-	public ref class Bitfsm {
-
-	public:
-		property Dict::KeyCollection^ StatusColl {
-			Dict::KeyCollection^ get();
-		}
-		property Dict::KeyCollection^ CommandColl {
-			Dict::KeyCollection^ get();
-		}
-
-	public:
-		Bitfsm();
-		virtual ~Bitfsm();
-
-		Void config(String^ _globalCfg, String^ _statusCfg, String^ _commandCfg);
-
-	protected:
-		Dict^ statusColl;
-		Dict^ commandColl;
-		Fsm* fsm;
-		MyTagStreamer* streamer;
-
-	};
-
+    }
 }

@@ -1,0 +1,3 @@
+robust editor.
+more effective editor logic binding with core lib.
+more effective editor operations.

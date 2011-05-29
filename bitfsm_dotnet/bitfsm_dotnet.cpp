@@ -58,34 +58,18 @@ namespace fsm {
 	};
 
 	int ObjToStatus::operator ()(const std::string &_obj) {
-		if(_obj == "begin") {
-			return 0;
-		} else if(_obj == "1") {
-			return 1;
-		} else if(_obj == "2") {
-			return 2;
-		} else if(_obj == "3") {
-			return 3;
-		} else if(_obj == "end") {
-			return 4;
+		int _val = -1;
+		if(Config::getSingleton().getStatusCfg().getData(_obj, _val)) {
+			return _val;
 		}
 
 		return -1;
 	}
 
 	int ObjToCommand::operator ()(const std::string &_obj) {
-		if(_obj == "_cmd0") {
-			return 0;
-		} else if(_obj == "_cmd1") {
-			return 1;
-		} else if(_obj == "_cmd2") {
-			return 2;
-		} else if(_obj == "_cmd3") {
-			return 3;
-		} else if(_obj == "_cmd4") {
-			return 4;
-		} else if(_obj == "_cmd5") {
-			return 5;
+		int _val = -1;
+		if(Config::getSingleton().getCommandCfg().getData(_obj, _val)) {
+			return _val;
 		}
 
 		return -1;
@@ -114,13 +98,29 @@ namespace fsm {
 		return _result;
 	}
 
+	Dict::KeyCollection^ Bitfsm::StatusColl::get() {
+		return statusColl->Keys;
+	}
+
+	Dict::KeyCollection^ Bitfsm::CommandColl::get() {
+		return commandColl->Keys;
+	}
+
 	Bitfsm::Bitfsm() {
 		fsm = new Fsm;
 		streamer = new MyTagStreamer;
 		fsm->setTagStreamer(streamer);
+
+		statusColl = gcnew Dictionary<String^, Int32>();
+		commandColl = gcnew Dictionary<String^, Int32>();;
 	}
 
 	Bitfsm::~Bitfsm() {
+		statusColl->Clear();
+		commandColl->Clear();
+		statusColl = nullptr;
+		commandColl = nullptr;
+
 		delete fsm;
 		delete streamer;
 		fsm = 0;
@@ -131,10 +131,48 @@ namespace fsm {
 		Config::getSingleton().getGlobalCfg().processFile(_glb);
 
 		std::string _stt = cliStringToStl(_statusCfg);
-		Config::getSingleton().getGlobalCfg().processFile(_stt);
+		Config::getSingleton().getStatusCfg().processFile(_stt);
 
 		std::string _cmd = cliStringToStl(_commandCfg);
-		Config::getSingleton().getGlobalCfg().processFile(_cmd);
+		Config::getSingleton().getCommandCfg().processFile(_cmd);
+
+		ConfigFile::iterator _sit = Config::getSingleton().getStatusCfg().begin();
+		while(_sit != Config::getSingleton().getStatusCfg().end()) {
+			const std::string &_key = _sit->first;
+			int _val = -1;
+			Config::getSingleton().getStatusCfg().getData(_key, _val);
+
+			fsm->registerRuleStepTag(_val, _key);
+
+			statusColl->Add(gcnew String(_key.c_str()), _val);
+
+			++_sit;
+		}
+
+		ConfigFile::iterator _cit = Config::getSingleton().getCommandCfg().begin();
+		while(_cit != Config::getSingleton().getCommandCfg().end()) {
+			const std::string &_key = _cit->first;
+			int _val = -1;
+			Config::getSingleton().getCommandCfg().getData(_key, _val);
+
+			commandColl->Add(gcnew String(_key.c_str()), _val);
+
+			++_cit;
+		}
+
+		ConfigFile::iterator _git = Config::getSingleton().getGlobalCfg().begin();
+		while(_git != Config::getSingleton().getGlobalCfg().end()) {
+			const std::string &_key = _git->first;
+			const std::string &_val = _git->second;
+
+			if(_key == "__BEGIN_STEP__") {
+				fsm->setCurrentStep(_val);
+			} else if(_key == "__END_STEP__") {
+				fsm->setTerminalStep(_val);
+			}
+
+			++_git;
+		}
 	}
 
 };
