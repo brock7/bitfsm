@@ -42,6 +42,11 @@ namespace fsm
     {
         private Bitfsm bitfsm = null;
 
+        public Bitfsm Bitfsm
+        {
+            get { return bitfsm; }
+        }
+
         private List<Relation> relations = null;
 
         public FormMain()
@@ -112,55 +117,57 @@ namespace fsm
             }
 
             Random rand = new Random();
+            int r = rand.Next(255);
+            int g = rand.Next(255);
+            int b = rand.Next(255);
 
             StatusItem si = new StatusItem();
             si.Location = new Point(Width / 2, Height / 2);
             si.TitleText = text;
             si.Name = text;
-            si.TitleColor = Color.FromArgb(rand.Next(255), rand.Next(255), rand.Next(255));
+            si.TitleColor = Color.FromArgb(r, g, b);
+            si.TitleTextColor = Color.FromArgb(255 - r, 255 - g, 255 - b);
             Controls.Add(si);
 
             si.AllowDrop = true;
-            si.MouseDown += new MouseEventHandler(status_MouseDown);
-            si.DragEnter += new DragEventHandler(status_DragEnter);
-            si.DragDrop += new DragEventHandler(status_DragDrop);
-        }
-
-        private void status_MouseDown(object sender, MouseEventArgs e)
-        {
-            DoDragDrop(sender, DragDropEffects.Link);
-        }
-
-        private void status_DragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(typeof(StatusItem)))
-            {
-                StatusItem si = e.Data.GetData(typeof(StatusItem)) as StatusItem;
-                if (si == sender)
+            si.OnDragItem += (_sender, _e) =>
                 {
-                    e.Effect = DragDropEffects.None;
-                }
-                else
+                    (_sender as Control).DoDragDrop(_sender, DragDropEffects.Link);
+                };
+            si.OnDragEnterItem += (_sender, _e)=>
                 {
-                    e.Effect = DragDropEffects.Link;
-                }
-            }
-            else
-            {
-                e.Effect = DragDropEffects.None;
-            }
-        }
-
-        private void status_DragDrop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(typeof(StatusItem)))
-            {
-                StatusItem si = e.Data.GetData(typeof(StatusItem)) as StatusItem;
-                if (si != sender)
+                    if (_e.Data.GetDataPresent(typeof(StatusItem)))
+                    {
+                        StatusItem _si = _e.Data.GetData(typeof(StatusItem)) as StatusItem;
+                        if (_si == _sender)
+                        {
+                            _e.Effect = DragDropEffects.None;
+                        }
+                        else
+                        {
+                            _e.Effect = DragDropEffects.Link;
+                        }
+                    }
+                    else
+                    {
+                        _e.Effect = DragDropEffects.None;
+                    }
+                };
+            si.OnDragDropItem += (_sender, _e) =>
                 {
-                    link(si, sender as StatusItem);
-                }
-            }
+                    if (_e.Data.GetDataPresent(typeof(StatusItem)))
+                    {
+                        StatusItem _si = _e.Data.GetData(typeof(StatusItem)) as StatusItem;
+                        if (_si != _sender)
+                        {
+                            link(_si, _sender as StatusItem);
+                        }
+                    }
+                };
+            si.Resize += (_sender, _e) =>
+                {
+                    Refresh();
+                };
         }
 
         private void link(StatusItem src, StatusItem tgt)
@@ -168,11 +175,23 @@ namespace fsm
             FormCondition fc = new FormCondition(bitfsm);
             if (DialogResult.OK == fc.ShowDialog(this))
             {
-                relations.Add(new Relation(src, tgt, fc.Commands));
+                if (bitfsm.addRuleStep(src.Name, fc.Commands.ToArray(), tgt.Name, fc.Exact))
+                {
+                    Label dummy = new Label();
+                    dummy.AutoSize = true;
+                    dummy.Click += (sender, e) =>
+                        {
+                            // TODO
+                        };
+                    Controls.Add(dummy);
+                    relations.Add(new Relation(src, tgt, fc.Commands, fc.Exact, dummy));
 
-                bitfsm.addRuleStep(src.Name, fc.Commands.ToArray(), tgt.Name, fc.Exact);
-
-                Refresh();
+                    Refresh();
+                }
+                else
+                {
+                    MessageBox.Show(this, "Command(s) add failed", "Bitfsm Editor", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -190,7 +209,9 @@ namespace fsm
                 int cr = 5;
                 e.Graphics.FillEllipse(Brushes.Red, p4.X - cr, p4.Y - cr, cr * 2, cr * 2);
 
-                e.Graphics.DrawString(r.CommandsString, new Font("", 8), Brushes.White, new PointF(p2.X, p2.Y));
+                r.Dummy.Text = r.CommandsString;
+                r.Dummy.ForeColor = r.Exact ? Color.Red : Color.White;
+                r.Dummy.Location = new Point(p2.X, p1.Y + (p4.Y - p1.Y) / 2);
             }
         }
 

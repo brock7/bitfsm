@@ -83,7 +83,14 @@ namespace fsm
             {
                 foreach (string c in cmds)
                 {
-                    commands.Add(c);
+                    if ((Program.Form as FormMain).Bitfsm.CommandColl.Contains(c))
+                    {
+                        commands.Add(c);
+                    }
+                    else
+                    {
+                        MessageBox.Show(this, "There is no command named " + c, "Bitfsm Editor", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
 
                 exact = cbExact.Checked;

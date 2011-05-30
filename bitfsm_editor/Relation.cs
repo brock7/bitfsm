@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 
 namespace fsm
 {
@@ -56,6 +57,21 @@ namespace fsm
             set { commands = value; }
         }
 
+        private bool exact = false;
+
+        public bool Exact
+        {
+            get { return exact; }
+            set { exact = value; }
+        }
+
+        private Label dummy = null;
+
+        public Label Dummy
+        {
+            get { return dummy; }
+        }
+
         public String CommandsString
         {
             get
@@ -71,11 +87,13 @@ namespace fsm
             }
         }
 
-        public Relation(StatusItem src, StatusItem tgt, HashSet<string> cmds)
+        public Relation(StatusItem src, StatusItem tgt, HashSet<string> cmds, bool ext, Label dmy)
         {
             source = src;
             target = tgt;
             commands = cmds;
+            exact = ext;
+            dummy = dmy;
         }
     }
 }

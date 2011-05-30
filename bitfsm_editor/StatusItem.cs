@@ -36,6 +36,18 @@ namespace fsm
 {
     public partial class StatusItem : IDragableItem
     {
+        public delegate void DragItemEventHandler(object sender, MouseEventArgs e);
+
+        public event DragItemEventHandler OnDragItem;
+
+        public delegate void DragEnterItemEventHandler(object sender, DragEventArgs e);
+
+        public event DragEnterItemEventHandler OnDragEnterItem;
+
+        public delegate void DragDropItemEventHandler(object sender, DragEventArgs e);
+
+        public event DragDropItemEventHandler OnDragDropItem;
+
         public Point CenterLocation
         {
             get { return new Point(Location.X + Width / 2, Location.Y + Height / 2); }
@@ -64,6 +76,9 @@ namespace fsm
         public StatusItem()
         {
             InitializeComponent();
+
+            labelOut.AllowDrop = true;
+            labelIn.AllowDrop = true;
         }
 
         protected override void Dispose(bool disposing)
@@ -82,6 +97,30 @@ namespace fsm
             if (Parent != null)
             {
                 Parent.Refresh();
+            }
+        }
+
+        private void labelOut_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (null != OnDragItem)
+            {
+                OnDragItem(this, e);
+            }
+        }
+
+        private void labelIn_DragEnter(object sender, DragEventArgs e)
+        {
+            if (null != OnDragEnterItem)
+            {
+                OnDragEnterItem(this, e);
+            }
+        }
+
+        private void labelIn_DragDrop(object sender, DragEventArgs e)
+        {
+            if (null != OnDragDropItem)
+            {
+                OnDragDropItem(this, e);
             }
         }
     }

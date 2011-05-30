@@ -86,6 +86,15 @@ namespace fsm
         }
 
         /// <summary>
+        /// Color for title text
+        /// </summary>
+        public Color TitleTextColor
+        {
+            get { return labelTitle.ForeColor; }
+            set { labelTitle.ForeColor = value; }
+        }
+
+        /// <summary>
         /// Is this control closable
         /// </summary>
         public bool Closable
