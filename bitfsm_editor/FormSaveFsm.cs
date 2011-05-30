@@ -91,14 +91,7 @@ namespace fsm
 
         public new DialogResult ShowDialog(IWin32Window owner)
         {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.Filter = "Bitfsm save file(*.fsm)|*.fsm|(All files(*.*)|*.*";
-            if (DialogResult.OK == sfd.ShowDialog(this))
-            {
-                txtPath.Text = sfd.FileName;
-
-                base.ShowDialog(owner);
-            }
+            base.ShowDialog(owner);
 
             return dialogResult;
         }

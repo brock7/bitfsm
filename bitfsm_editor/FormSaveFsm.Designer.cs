@@ -127,7 +127,7 @@ namespace fsm
             this.txtPath.Location = new System.Drawing.Point(101, 39);
             this.txtPath.Name = "txtPath";
             this.txtPath.ReadOnly = true;
-            this.txtPath.Size = new System.Drawing.Size(339, 21);
+            this.txtPath.Size = new System.Drawing.Size(258, 21);
             this.txtPath.TabIndex = 5;
             // 
             // label3
@@ -141,14 +141,12 @@ namespace fsm
             // 
             // btnBrowse
             // 
-            this.btnBrowse.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnBrowse.Location = new System.Drawing.Point(203, 67);
+            this.btnBrowse.Location = new System.Drawing.Point(365, 37);
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(75, 23);
             this.btnBrowse.TabIndex = 6;
             this.btnBrowse.Text = "&Browse";
             this.btnBrowse.UseVisualStyleBackColor = true;
-            this.btnBrowse.Visible = false;
             this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
             // 
             // FormSaveFsm

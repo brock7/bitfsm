@@ -266,5 +266,10 @@ namespace fsm
         {
             Application.Exit();
         }
+
+        private void menuExact_Click(object sender, EventArgs e)
+        {
+            menuExact.Checked = !menuExact.Checked;
+        }
     }
 }
