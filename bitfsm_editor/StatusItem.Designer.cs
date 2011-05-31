@@ -41,6 +41,7 @@ namespace fsm
             this.panelLeft = new System.Windows.Forms.Panel();
             this.panelRight = new System.Windows.Forms.Panel();
             this.labelOut = new System.Windows.Forms.Label();
+            this.labelStatus = new System.Windows.Forms.Label();
             this.panelLeft.SuspendLayout();
             this.panelRight.SuspendLayout();
             this.SuspendLayout();
@@ -64,16 +65,16 @@ namespace fsm
             this.panelLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelLeft.Location = new System.Drawing.Point(0, 17);
             this.panelLeft.Name = "panelLeft";
-            this.panelLeft.Size = new System.Drawing.Size(18, 63);
+            this.panelLeft.Size = new System.Drawing.Size(18, 49);
             this.panelLeft.TabIndex = 2;
             // 
             // panelRight
             // 
             this.panelRight.Controls.Add(this.labelOut);
             this.panelRight.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panelRight.Location = new System.Drawing.Point(98, 17);
+            this.panelRight.Location = new System.Drawing.Point(93, 17);
             this.panelRight.Name = "panelRight";
-            this.panelRight.Size = new System.Drawing.Size(23, 63);
+            this.panelRight.Size = new System.Drawing.Size(23, 49);
             this.panelRight.TabIndex = 3;
             // 
             // labelOut
@@ -81,30 +82,46 @@ namespace fsm
             this.labelOut.AutoSize = true;
             this.labelOut.BackColor = System.Drawing.Color.Cyan;
             this.labelOut.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.labelOut.Location = new System.Drawing.Point(0, 51);
+            this.labelOut.Location = new System.Drawing.Point(0, 37);
             this.labelOut.Name = "labelOut";
             this.labelOut.Size = new System.Drawing.Size(23, 12);
             this.labelOut.TabIndex = 1;
             this.labelOut.Text = "out";
             this.labelOut.MouseDown += new System.Windows.Forms.MouseEventHandler(this.labelOut_MouseDown);
             // 
+            // labelStatus
+            // 
+            this.labelStatus.AutoSize = true;
+            this.labelStatus.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.labelStatus.Location = new System.Drawing.Point(18, 42);
+            this.labelStatus.Margin = new System.Windows.Forms.Padding(0);
+            this.labelStatus.Name = "labelStatus";
+            this.labelStatus.Size = new System.Drawing.Size(131, 12);
+            this.labelStatus.TabIndex = 4;
+            this.labelStatus.Text = "                     ";
+            // 
             // StatusItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
+            this.Controls.Add(this.labelStatus);
             this.Controls.Add(this.panelRight);
             this.Controls.Add(this.panelLeft);
+            this.MinimumSize = new System.Drawing.Size(116, 40);
             this.Name = "StatusItem";
+            this.Size = new System.Drawing.Size(116, 66);
             this.TitleColor = System.Drawing.Color.White;
             this.Move += new System.EventHandler(this.StatusItem_Move);
             this.Controls.SetChildIndex(this.panelLeft, 0);
             this.Controls.SetChildIndex(this.panelRight, 0);
+            this.Controls.SetChildIndex(this.labelStatus, 0);
             this.panelLeft.ResumeLayout(false);
             this.panelLeft.PerformLayout();
             this.panelRight.ResumeLayout(false);
             this.panelRight.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -114,6 +131,7 @@ namespace fsm
         private System.Windows.Forms.Panel panelLeft;
         private System.Windows.Forms.Panel panelRight;
         private System.Windows.Forms.Label labelOut;
+        private System.Windows.Forms.Label labelStatus;
 
     }
 }

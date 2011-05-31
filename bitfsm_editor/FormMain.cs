@@ -168,6 +168,14 @@ namespace fsm
                 {
                     Refresh();
                 };
+            si.MouseDown += (_sender, _e) =>
+                {
+                    if (_e.Button == MouseButtons.Right)
+                    {
+                        menuStatus.Tag = si;
+                        menuStatus.Show(si, 30, 20);
+                    }
+                };
         }
 
         private void link(StatusItem src, StatusItem tgt)
@@ -177,17 +185,33 @@ namespace fsm
             {
                 if (bitfsm.addRuleStep(src.Name, fc.Commands.ToArray(), tgt.Name, fc.Exact))
                 {
-                    Label dummy = new Label();
-                    dummy.AutoSize = true;
-                    dummy.Click += (sender, e) =>
-                        {
-                            menuRelation.Tag = dummy;
-                            menuRelation.Show(dummy, 30, 20);
-                        };
-                    Controls.Add(dummy);
-                    Relation r = new Relation(src, tgt, fc.Commands, fc.Exact, dummy);
+                    string ln = "DUMMY_" + src.Name + "_" + tgt.Name;
+                    Label dummy = null;
+                    if (!Controls.ContainsKey(ln))
+                    {
+                        dummy = new Label();
+                        dummy.Name = ln;
+                        dummy.AutoSize = true;
+                        dummy.TextAlign = ContentAlignment.MiddleCenter;
+                        dummy.BorderStyle = BorderStyle.FixedSingle;
+                        dummy.MouseDown += (_sender, _e) =>
+                            {
+                                if (_e.Button == MouseButtons.Right)
+                                {
+                                    menuRelation.Tag = dummy;
+                                    menuRelation.Show(dummy, 30, 20);
+                                }
+                            };
+                        Controls.Add(dummy);
+                        dummy.Tag = new List<Relation>();
+                    }
+                    else
+                    {
+                        dummy = Controls[ln] as Label;
+                    }
+                    Relation r = new Relation(src, tgt, fc.Commands, fc.Exact);
                     relations.Add(r);
-                    dummy.Tag = r;
+                    (dummy.Tag as List<Relation>).Add(r);
 
                     Refresh();
                 }
@@ -211,11 +235,40 @@ namespace fsm
 
                 int cr = 5;
                 e.Graphics.FillEllipse(Brushes.Red, p4.X - cr, p4.Y - cr, cr * 2, cr * 2);
-
-                r.Dummy.Text = r.CommandsString;
-                r.Dummy.ForeColor = r.Exact ? Color.Red : Color.White;
-                r.Dummy.Location = new Point(p2.X, p1.Y + (p4.Y - p1.Y) / 2);
             }
+        }
+
+        public override void Refresh()
+        {
+            foreach (Control l in Controls)
+            {
+                if (l.GetType() == typeof(Label))
+                {
+                    l.Text = string.Empty;
+                }
+            }
+            foreach (Relation r in relations)
+            {
+                Point p1 = r.Source.BottomrightLocation;
+                Point p4 = r.Target.TopleftLocation;
+                Point p2 = new Point(p1.X + (p4.X - p1.X) / 2, p1.Y);
+                Point p3 = new Point(p2.X + (p4.X - p1.X) / 2, p4.Y);
+
+                string ln = "DUMMY_" + r.Source.Name + "_" + r.Target.Name;
+                if (Controls.ContainsKey(ln))
+                {
+                    Label dummy = Controls[ln] as Label;
+                    if (!string.IsNullOrEmpty(dummy.Text))
+                    {
+                        dummy.Text += "\nor\n";
+                    }
+                    dummy.Text += r.CommandsString;
+                    dummy.ForeColor = Color.White;
+                    dummy.Location = new Point(p2.X, p1.Y + (p4.Y - p1.Y) / 2);
+                }
+            }
+
+            base.Refresh();
         }
 
         public void RemoveItem(StatusItem si)
@@ -280,27 +333,69 @@ namespace fsm
             Label dummy = menuRelation.Tag as Label;
             if (DialogResult.Yes == MessageBox.Show(this, "Delete relation " + dummy.Text + "?", "Bitfsm Editor", MessageBoxButtons.YesNo, MessageBoxIcon.Question))
             {
-                Relation r = dummy.Tag as Relation;
-                if (bitfsm.removeRuleStep(r.Source.Name, r.Commands.ToArray()))
+                List<Relation> _relations = dummy.Tag as List<Relation>;
+                foreach (Relation r in _relations)
                 {
-                    relations.Remove(r);
-
-                    Controls.Remove(dummy);
-                    dummy.Dispose();
-
-                    Refresh();
+                    if (bitfsm.removeRuleStep(r.Source.Name, r.Commands.ToArray()))
+                    {
+                        relations.Remove(r);
+                    }
                 }
+                _relations.Clear();
+
+                Controls.Remove(dummy);
+                dummy.Dispose();
+
+                Refresh();
             }
         }
 
         private void menuSetBegin_Click(object sender, EventArgs e)
         {
+            StatusItem si = menuStatus.Tag as StatusItem;
+            if (bitfsm.setCurrentStep(si.Name))
+            {
+                foreach (Control c in Controls)
+                {
+                    if (c.GetType() == typeof(StatusItem) && si != c)
+                    {
+                        (c as StatusItem).Content = string.Empty;
+                    }
+                }
 
+                if (si.Content == "T" || si.Content == "ST")
+                {
+                    si.Content = "ST";
+                }
+                else
+                {
+                    si.Content = "S";
+                }
+            }
         }
 
         private void menuSetTerminal_Click(object sender, EventArgs e)
         {
+            StatusItem si = menuStatus.Tag as StatusItem;
+            if (bitfsm.setTerminalStep(si.Name))
+            {
+                foreach (Control c in Controls)
+                {
+                    if (c.GetType() == typeof(StatusItem) && si != c)
+                    {
+                        (c as StatusItem).Content = string.Empty;
+                    }
+                }
 
+                if (si.Content == "S" || si.Content == "ST")
+                {
+                    si.Content = "ST";
+                }
+                else
+                {
+                    si.Content = "T";
+                }
+            }
         }
     }
 }

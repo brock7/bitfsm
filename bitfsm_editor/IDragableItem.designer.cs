@@ -65,7 +65,7 @@ namespace fsm
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
             this.toolStrip.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.toolStrip.Size = new System.Drawing.Size(137, 17);
+            this.toolStrip.Size = new System.Drawing.Size(84, 17);
             this.toolStrip.TabIndex = 0;
             this.toolStrip.Text = "Item";
             this.toolStrip.MouseDown += new System.Windows.Forms.MouseEventHandler(this.moveItem);
@@ -97,7 +97,7 @@ namespace fsm
             this.Controls.Add(this.toolStrip);
             this.Cursor = System.Windows.Forms.Cursors.Default;
             this.Name = "IDragableItem";
-            this.Size = new System.Drawing.Size(137, 96);
+            this.Size = new System.Drawing.Size(84, 71);
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
             this.ResumeLayout(false);

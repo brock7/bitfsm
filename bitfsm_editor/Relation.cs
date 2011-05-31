@@ -65,35 +65,34 @@ namespace fsm
             set { exact = value; }
         }
 
-        private Label dummy = null;
-
-        public Label Dummy
-        {
-            get { return dummy; }
-        }
-
         public String CommandsString
         {
             get
             {
                 StringBuilder sb = new StringBuilder();
+                sb.Append("(");
+                int i = 0;
                 foreach (string cmd in commands)
                 {
                     sb.Append(cmd);
-                    sb.Append("; ");
+                    if (i != commands.Count - 1)
+                    {
+                        sb.Append(exact ? " and " : " or ");
+                    }
+                    ++i;
                 }
+                sb.Append(")");
 
                 return sb.ToString();
             }
         }
 
-        public Relation(StatusItem src, StatusItem tgt, HashSet<string> cmds, bool ext, Label dmy)
+        public Relation(StatusItem src, StatusItem tgt, HashSet<string> cmds, bool ext)
         {
             source = src;
             target = tgt;
             commands = cmds;
             exact = ext;
-            dummy = dmy;
         }
     }
 }

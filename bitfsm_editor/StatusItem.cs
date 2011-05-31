@@ -73,6 +73,12 @@ namespace fsm
             get { return new Point(Location.X + Width, Location.Y + Height); }
         }
 
+        public string Content
+        {
+            get { return labelStatus.Text; }
+            set { labelStatus.Text = value; }
+        }
+
         public StatusItem()
         {
             InitializeComponent();
