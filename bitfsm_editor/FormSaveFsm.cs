@@ -95,5 +95,11 @@ namespace fsm
 
             return dialogResult;
         }
+
+        private void FormSaveFsm_Load(object sender, EventArgs e)
+        {
+            numStatusCount.Value = bitfsm.StatusColl.Count;
+            numCommandCount.Value = bitfsm.CommandColl.Count;
+        }
     }
 }

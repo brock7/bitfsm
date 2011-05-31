@@ -45,6 +45,18 @@ namespace fsm {
 
 	typedef fsm::FSM<256, 256, std::string, ObjToStatus, ObjToCommand> Fsm;
 
+	class MyStepHandler : public Fsm::StepHandler {
+
+	public:
+		virtual void handleStep(const std::string &_srcTag, const std::string &_tgtTag);
+
+		void setBitfsm(void* _ptr);
+
+	private:
+		void* bitfsm;
+
+	};
+
 	class MyTagStreamer : public Fsm::TagStreamer {
 
 	public:
@@ -89,6 +101,7 @@ namespace fsm {
 		Dict^ commandColl;
 		Fsm* fsm;
 		MyTagStreamer* streamer;
+		MyStepHandler* handler;
 
 	};
 

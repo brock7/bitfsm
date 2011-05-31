@@ -171,6 +171,7 @@ namespace fsm
             this.Name = "FormSaveFsm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Save Bitfsm";
+            this.Load += new System.EventHandler(this.FormSaveFsm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numStatusCount)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCommandCount)).EndInit();
             this.ResumeLayout(false);

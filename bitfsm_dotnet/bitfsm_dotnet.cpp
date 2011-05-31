@@ -75,6 +75,15 @@ namespace fsm {
 		return -1;
 	}
 
+	void MyStepHandler::handleStep(const std::string &_srcTag, const std::string &_tgtTag) {
+		printf("Status changed from %s to %s\n", _srcTag.c_str(), _tgtTag.c_str());
+		// TODO
+	}
+
+	void MyStepHandler::setBitfsm(void* _ptr) {
+		bitfsm = _ptr;
+	}
+
 	void MyTagStreamer::write(std::fstream &_fs, const std::string &_tag) {
 		int _len = _tag.length() + 1;
 		_fs.write((char*)&_len, sizeof(_len));
@@ -108,7 +117,10 @@ namespace fsm {
 
 	Bitfsm::Bitfsm() {
 		fsm = new Fsm;
+		handler = new MyStepHandler;
+		//void* _fsmptr = &this; // TODO
 		streamer = new MyTagStreamer;
+		fsm->setStepHandler(handler);
 		fsm->setTagStreamer(streamer);
 
 		statusColl = gcnew Dictionary<String^, Int32>();
@@ -121,9 +133,9 @@ namespace fsm {
 		statusColl = nullptr;
 		commandColl = nullptr;
 
-		delete fsm;
-		delete streamer;
-		fsm = 0;
+		delete fsm; fsm = 0;
+		delete streamer; streamer = 0;
+		delete handler; handler = 0;
 	}
 
 	Void Bitfsm::config(String^ _globalCfg, String^ _statusCfg, String^ _commandCfg) {

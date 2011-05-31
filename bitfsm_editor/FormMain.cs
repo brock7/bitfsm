@@ -99,7 +99,10 @@ namespace fsm
 
         private void menuCmd_Click(object sender, EventArgs e)
         {
-            // TODO
+            StatusItem si = sender as StatusItem;
+            if (bitfsm.walk(si.Name, menuExact.Checked))
+            {
+            }
         }
 
         private void menuAdd_Click(object sender, EventArgs e)
