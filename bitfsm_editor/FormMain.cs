@@ -181,10 +181,13 @@ namespace fsm
                     dummy.AutoSize = true;
                     dummy.Click += (sender, e) =>
                         {
-                            // TODO
+                            menuRelation.Tag = dummy;
+                            menuRelation.Show(dummy, 30, 20);
                         };
                     Controls.Add(dummy);
-                    relations.Add(new Relation(src, tgt, fc.Commands, fc.Exact, dummy));
+                    Relation r = new Relation(src, tgt, fc.Commands, fc.Exact, dummy);
+                    relations.Add(r);
+                    dummy.Tag = r;
 
                     Refresh();
                 }
@@ -270,6 +273,34 @@ namespace fsm
         private void menuExact_Click(object sender, EventArgs e)
         {
             menuExact.Checked = !menuExact.Checked;
+        }
+
+        private void menuDeleteRelation_Click(object sender, EventArgs e)
+        {
+            Label dummy = menuRelation.Tag as Label;
+            if (DialogResult.Yes == MessageBox.Show(this, "Delete relation " + dummy.Text + "?", "Bitfsm Editor", MessageBoxButtons.YesNo, MessageBoxIcon.Question))
+            {
+                Relation r = dummy.Tag as Relation;
+                if (bitfsm.removeRuleStep(r.Source.Name, r.Commands.ToArray()))
+                {
+                    relations.Remove(r);
+
+                    Controls.Remove(dummy);
+                    dummy.Dispose();
+
+                    Refresh();
+                }
+            }
+        }
+
+        private void menuSetBegin_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void menuSetTerminal_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
