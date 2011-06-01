@@ -47,12 +47,14 @@ namespace fsm
             this.menuItems = new System.Windows.Forms.ToolStripMenuItem();
             this.menuCommands = new System.Windows.Forms.ToolStripMenuItem();
             this.menuExact = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuReset = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.menuRelation = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.menuStatus = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuDeleteRelation = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStatus = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuSetBegin = new System.Windows.Forms.ToolStripMenuItem();
             this.menuSetTerminal = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuClear = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStripMain.SuspendLayout();
             this.menuRelation.SuspendLayout();
             this.menuStatus.SuspendLayout();
@@ -72,6 +74,7 @@ namespace fsm
             // menuFile
             // 
             this.menuFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuClear,
             this.menuLoad,
             this.menuSave,
             this.toolStripSeparator1,
@@ -118,6 +121,7 @@ namespace fsm
             // 
             this.menuCommands.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuExact,
+            this.menuReset,
             this.toolStripSeparator2});
             this.menuCommands.Name = "menuCommands";
             this.menuCommands.Size = new System.Drawing.Size(86, 21);
@@ -127,14 +131,22 @@ namespace fsm
             // 
             this.menuExact.Name = "menuExact";
             this.menuExact.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
-            this.menuExact.Size = new System.Drawing.Size(152, 22);
+            this.menuExact.Size = new System.Drawing.Size(153, 22);
             this.menuExact.Text = "&Exact";
             this.menuExact.Click += new System.EventHandler(this.menuExact_Click);
+            // 
+            // menuReset
+            // 
+            this.menuReset.Name = "menuReset";
+            this.menuReset.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
+            this.menuReset.Size = new System.Drawing.Size(153, 22);
+            this.menuReset.Text = "&Reset";
+            this.menuReset.Click += new System.EventHandler(this.menuReset_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(150, 6);
             // 
             // menuRelation
             // 
@@ -143,20 +155,20 @@ namespace fsm
             this.menuRelation.Name = "menuRelation";
             this.menuRelation.Size = new System.Drawing.Size(114, 26);
             // 
-            // menuStatus
-            // 
-            this.menuStatus.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menuSetBegin,
-            this.menuSetTerminal});
-            this.menuStatus.Name = "menuStatus";
-            this.menuStatus.Size = new System.Drawing.Size(163, 70);
-            // 
             // menuDeleteRelation
             // 
             this.menuDeleteRelation.Name = "menuDeleteRelation";
             this.menuDeleteRelation.Size = new System.Drawing.Size(113, 22);
             this.menuDeleteRelation.Text = "&Delete";
             this.menuDeleteRelation.Click += new System.EventHandler(this.menuDeleteRelation_Click);
+            // 
+            // menuStatus
+            // 
+            this.menuStatus.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuSetBegin,
+            this.menuSetTerminal});
+            this.menuStatus.Name = "menuStatus";
+            this.menuStatus.Size = new System.Drawing.Size(163, 48);
             // 
             // menuSetBegin
             // 
@@ -172,11 +184,18 @@ namespace fsm
             this.menuSetTerminal.Text = "Set as &terminal";
             this.menuSetTerminal.Click += new System.EventHandler(this.menuSetTerminal_Click);
             // 
+            // menuClear
+            // 
+            this.menuClear.Name = "menuClear";
+            this.menuClear.Size = new System.Drawing.Size(152, 22);
+            this.menuClear.Text = "&Clear";
+            this.menuClear.Click += new System.EventHandler(this.menuClear_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Gray;
+            this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(788, 553);
             this.Controls.Add(this.menuStripMain);
             this.MainMenuStrip = this.menuStripMain;
@@ -211,6 +230,8 @@ namespace fsm
         private System.Windows.Forms.ToolStripMenuItem menuDeleteRelation;
         private System.Windows.Forms.ToolStripMenuItem menuSetBegin;
         private System.Windows.Forms.ToolStripMenuItem menuSetTerminal;
+        private System.Windows.Forms.ToolStripMenuItem menuReset;
+        private System.Windows.Forms.ToolStripMenuItem menuClear;
 
     }
 }

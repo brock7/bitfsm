@@ -1,4 +1,2 @@
-simulation in editor.
-more effective editor logic binding with core lib.
-more effective editor operations.
-better editor gui.
+load from a *.fsm file then relayout in editor.
+better relation curve rendering.

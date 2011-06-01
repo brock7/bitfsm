@@ -1,3 +1,7 @@
+June. 1 2011
+implemented key features of editor.
+simulation in editor.
+
 May. 29 2011
 basic editor.
 

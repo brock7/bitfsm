@@ -73,10 +73,16 @@ namespace fsm
             get { return new Point(Location.X + Width, Location.Y + Height); }
         }
 
-        public string Content
+        public string StatusText
         {
             get { return labelStatus.Text; }
             set { labelStatus.Text = value; }
+        }
+
+        public string SteppingText
+        {
+            get { return labelCurrent.Text; }
+            set { labelCurrent.Text = value; }
         }
 
         public StatusItem()
@@ -128,6 +134,11 @@ namespace fsm
             {
                 OnDragDropItem(this, e);
             }
+        }
+
+        private void label_Click(object sender, EventArgs e)
+        {
+            OnClick(e);
         }
     }
 }

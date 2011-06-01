@@ -145,12 +145,12 @@ namespace fsm {
 
 		bool operator &(const Bitset<N> &_other) const {
 			for(int i = 0; i < size; ++i) {
-				if((raw[i] & _other.raw[i]) == 0) {
-					return false;
+				if((raw[i] & _other.raw[i]) != 0) {
+					return true;
 				}
 			}
 
-			return true;;
+			return false;
 		}
 
 		bool operator |(const Bitset<N> &_other) const {
@@ -305,8 +305,12 @@ namespace fsm {
 		void reset(void) {
 			current.status.clear();
 			current.index = -1;
-			clearRuleStep();
 			terminalIndex = -1;
+		}
+
+		void clear(void) {
+			reset();
+			clearRuleStep();
 		}
 
 		bool setCurrentStep(int _index) {
@@ -467,6 +471,10 @@ namespace fsm {
 			if(!(_status >= 0 && _status < _Nc)) {
 				return false;
 			}
+			if(current.index < 0 || current.index >= _Ns) {
+				return false;
+			}
+
 			Bitset<_Nc> _bs; _bs.set(_status);
 
 			int _srcIdx = current.index;

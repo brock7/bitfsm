@@ -75,13 +75,18 @@ namespace fsm {
 		return -1;
 	}
 
-	void MyStepHandler::handleStep(const std::string &_srcTag, const std::string &_tgtTag) {
-		printf("Status changed from %s to %s\n", _srcTag.c_str(), _tgtTag.c_str());
-		// TODO
+	MyStepHandler::MyStepHandler() {
+		managedHandler = 0;
 	}
 
-	void MyStepHandler::setBitfsm(void* _ptr) {
-		bitfsm = _ptr;
+	void MyStepHandler::handleStep(const std::string &_srcTag, const std::string &_tgtTag) {
+		if(managedHandler) {
+			managedHandler(_srcTag, _tgtTag);
+		}
+	}
+
+	void MyStepHandler::setManagedStepHandler(void* _ptr) {
+		managedHandler = (ManagedStepHandlerPtr)_ptr;
 	}
 
 	void MyTagStreamer::write(std::fstream &_fs, const std::string &_tag) {
@@ -118,13 +123,17 @@ namespace fsm {
 	Bitfsm::Bitfsm() {
 		fsm = new Fsm;
 		handler = new MyStepHandler;
-		//void* _fsmptr = &this; // TODO
+		managedStepHandlerDelegate = gcnew ManagedStepHandlerDelegate(this, &Bitfsm::onStep);
+		IntPtr _hp = Marshal::GetFunctionPointerForDelegate(managedStepHandlerDelegate);
+		void* _shp = _hp.ToPointer();
+		handler->setManagedStepHandler(_shp);
+		OnStepped = nullptr;
 		streamer = new MyTagStreamer;
 		fsm->setStepHandler(handler);
 		fsm->setTagStreamer(streamer);
 
 		statusColl = gcnew Dictionary<String^, Int32>();
-		commandColl = gcnew Dictionary<String^, Int32>();;
+		commandColl = gcnew Dictionary<String^, Int32>();
 	}
 
 	Bitfsm::~Bitfsm() {
@@ -232,6 +241,10 @@ namespace fsm {
 		return fsm->writeRuleSteps(_f.c_str(), _ns, _nc);
 	}
 
+	Void Bitfsm::clear() {
+		fsm->clear();
+	}
+
 	Void Bitfsm::reset() {
 		fsm->reset();
 	}
@@ -250,6 +263,15 @@ namespace fsm {
 
 	Boolean Bitfsm::terminated() {
 		return fsm->terminated();
+	}
+
+	Void Bitfsm::onStep(const std::string &_srcTag, const std::string &_tgtTag) {
+		if(OnStepped != nullptr) {
+			StepEventArgs^ _e = gcnew StepEventArgs;
+			_e->sourceTag = gcnew String(_srcTag.c_str());
+			_e->targetTag = gcnew String(_tgtTag.c_str());
+			OnStepped(this, _e);
+		}
 	}
 
 };

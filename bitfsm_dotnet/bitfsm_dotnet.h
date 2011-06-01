@@ -45,15 +45,19 @@ namespace fsm {
 
 	typedef fsm::FSM<256, 256, std::string, ObjToStatus, ObjToCommand> Fsm;
 
+	typedef void(* ManagedStepHandlerPtr)(const std::string &_srcTag, const std::string &_tgtTag);
+
 	class MyStepHandler : public Fsm::StepHandler {
 
 	public:
+		MyStepHandler();
+
 		virtual void handleStep(const std::string &_srcTag, const std::string &_tgtTag);
 
-		void setBitfsm(void* _ptr);
+		void setManagedStepHandler(void* _ptr);
 
 	private:
-		void* bitfsm;
+		ManagedStepHandlerPtr managedHandler;
 
 	};
 
@@ -68,6 +72,36 @@ namespace fsm {
 	typedef Dictionary<String^, Int32> Dict;
 
 	public ref class Bitfsm {
+
+	public:
+		delegate Void ManagedStepHandlerDelegate(const std::string &_srcTag, const std::string &_tgtTag);
+
+	public:
+		ref struct StepEventArgs {
+			String^ sourceTag;
+			String^ targetTag;
+		};
+
+		delegate Void StepHandler(Object^ sender, StepEventArgs^ e);
+
+	protected:
+		StepHandler^ OnStepped;
+
+	public:
+		event StepHandler^ Stepped {
+			void add(StepHandler^ _d) {
+				OnStepped += _d;
+			}
+			void remove(StepHandler^ _d) {
+				OnStepped -= _d;
+			}
+			void raise(Object^ sender, StepEventArgs^ e) {
+				StepHandler^ _tmp = OnStepped;
+				if (_tmp) {
+					_tmp->Invoke(sender, e);
+				}
+			}
+		}
 
 	public:
 		property Dict::KeyCollection^ StatusColl {
@@ -90,11 +124,14 @@ namespace fsm {
 		Boolean setTerminalStep(String^ _index);
 
 		Boolean writeRuleSteps(String^ _file, Int32 _ns, Int32 _nc);
+		Void clear();
 		Void reset();
 		Boolean readRuleSteps(String^ _file);
 
 		Boolean walk(String^ _cmd, Boolean _exact);
 		Boolean terminated();
+
+		Void onStep(const std::string &_srcTag, const std::string &_tgtTag);
 
 	protected:
 		Dict^ statusColl;
@@ -102,6 +139,7 @@ namespace fsm {
 		Fsm* fsm;
 		MyTagStreamer* streamer;
 		MyStepHandler* handler;
+		ManagedStepHandlerDelegate^ managedStepHandlerDelegate;
 
 	};
 

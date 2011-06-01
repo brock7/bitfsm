@@ -54,8 +54,18 @@ namespace fsm
             InitializeComponent();
 
             bitfsm = new Bitfsm();
+            bitfsm.Stepped += new Bitfsm.StepHandler(bitfsm_Stepped);
 
             relations = new List<Relation>();
+        }
+
+        private void bitfsm_Stepped(object sender, Bitfsm.StepEventArgs e)
+        {
+            StatusItem srci = Controls[e.sourceTag] as StatusItem;
+            StatusItem tgti = Controls[e.targetTag] as StatusItem;
+            srci.SteppingText = string.Empty;
+
+            tgti.SteppingText = bitfsm.terminated() ? "Done" : "Current";
         }
 
         protected override void Dispose(bool disposing)
@@ -99,8 +109,8 @@ namespace fsm
 
         private void menuCmd_Click(object sender, EventArgs e)
         {
-            StatusItem si = sender as StatusItem;
-            if (bitfsm.walk(si.Name, menuExact.Checked))
+            ToolStripMenuItem mi = sender as ToolStripMenuItem;
+            if (bitfsm.walk(mi.Name, menuExact.Checked))
             {
             }
         }
@@ -234,7 +244,12 @@ namespace fsm
                 Point p2 = new Point(p1.X + (p4.X - p1.X) / 2, p1.Y);
                 Point p3 = new Point(p2.X + (p4.X - p1.X) / 2, p4.Y);
 
-                e.Graphics.DrawBezier(Pens.White, p1, p2, p3, p4);
+                Color col = Color.FromArgb(
+                    (r.Source.TitleColor.R + r.Target.TitleColor.R) / 2,
+                    (r.Source.TitleColor.G + r.Target.TitleColor.G) / 2,
+                    (r.Source.TitleColor.B + r.Target.TitleColor.B) / 2
+                );
+                e.Graphics.DrawBezier(new Pen(col), p1, p2, p3, p4);
 
                 int cr = 5;
                 e.Graphics.FillEllipse(Brushes.Red, p4.X - cr, p4.Y - cr, cr * 2, cr * 2);
@@ -265,8 +280,13 @@ namespace fsm
                     {
                         dummy.Text += "\nor\n";
                     }
+                    Color col = Color.FromArgb(
+                        (r.Source.TitleColor.R + r.Target.TitleColor.R) / 2,
+                        (r.Source.TitleColor.G + r.Target.TitleColor.G) / 2,
+                        (r.Source.TitleColor.B + r.Target.TitleColor.B) / 2
+                    );
+                    dummy.ForeColor = col;
                     dummy.Text += r.CommandsString;
-                    dummy.ForeColor = Color.White;
                     dummy.Location = new Point(p2.X, p1.Y + (p4.Y - p1.Y) / 2);
                 }
             }
@@ -360,20 +380,32 @@ namespace fsm
             {
                 foreach (Control c in Controls)
                 {
-                    if (c.GetType() == typeof(StatusItem) && si != c)
+                    if (c.GetType() == typeof(StatusItem) && si != c && (c as StatusItem).StatusText != "T")
                     {
-                        (c as StatusItem).Content = string.Empty;
+                        StatusItem sit = c as StatusItem;
+                        if (sit.StatusText == "ST")
+                        {
+                            sit.StatusText = "T";
+                        }
+                        else
+                        {
+                            sit.StatusText = string.Empty;
+                        }
+
+                        sit.SteppingText = string.Empty;
                     }
                 }
 
-                if (si.Content == "T" || si.Content == "ST")
+                if (si.StatusText == "T" || si.StatusText == "ST")
                 {
-                    si.Content = "ST";
+                    si.StatusText = "ST";
                 }
                 else
                 {
-                    si.Content = "S";
+                    si.StatusText = "S";
                 }
+
+                si.SteppingText = "Begin";
             }
         }
 
@@ -384,21 +416,55 @@ namespace fsm
             {
                 foreach (Control c in Controls)
                 {
-                    if (c.GetType() == typeof(StatusItem) && si != c)
+                    if (c.GetType() == typeof(StatusItem) && si != c && (c as StatusItem).StatusText != "S")
                     {
-                        (c as StatusItem).Content = string.Empty;
+                        StatusItem sit = c as StatusItem;
+                        if (sit.StatusText == "ST")
+                        {
+                            sit.StatusText = "S";
+                        }
+                        else
+                        {
+                            sit.StatusText = string.Empty;
+                        }
+
+                        if (sit.SteppingText != "Begin")
+                        {
+                            sit.SteppingText = string.Empty;
+                        }
                     }
                 }
 
-                if (si.Content == "S" || si.Content == "ST")
+                if (si.StatusText == "S" || si.StatusText == "ST")
                 {
-                    si.Content = "ST";
+                    si.StatusText = "ST";
                 }
                 else
                 {
-                    si.Content = "T";
+                    si.StatusText = "T";
                 }
             }
+        }
+
+        private void menuReset_Click(object sender, EventArgs e)
+        {
+            menuClear_Click(sender, e);
+            bitfsm.reset();
+        }
+
+        private void menuClear_Click(object sender, EventArgs e)
+        {
+            foreach (Control c in Controls)
+            {
+                if (c.GetType() == typeof(StatusItem))
+                {
+                    StatusItem sit = c as StatusItem;
+                    sit.SteppingText = string.Empty;
+                    sit.StatusText = string.Empty;
+                }
+            }
+
+            bitfsm.clear();
         }
     }
 }

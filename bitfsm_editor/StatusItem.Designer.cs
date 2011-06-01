@@ -42,6 +42,7 @@ namespace fsm
             this.panelRight = new System.Windows.Forms.Panel();
             this.labelOut = new System.Windows.Forms.Label();
             this.labelStatus = new System.Windows.Forms.Label();
+            this.labelCurrent = new System.Windows.Forms.Label();
             this.panelLeft.SuspendLayout();
             this.panelRight.SuspendLayout();
             this.SuspendLayout();
@@ -93,18 +94,32 @@ namespace fsm
             // 
             this.labelStatus.AutoSize = true;
             this.labelStatus.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.labelStatus.Location = new System.Drawing.Point(18, 42);
+            this.labelStatus.Location = new System.Drawing.Point(18, 54);
             this.labelStatus.Margin = new System.Windows.Forms.Padding(0);
             this.labelStatus.Name = "labelStatus";
-            this.labelStatus.Size = new System.Drawing.Size(131, 12);
+            this.labelStatus.Size = new System.Drawing.Size(53, 12);
             this.labelStatus.TabIndex = 4;
-            this.labelStatus.Text = "                     ";
+            this.labelStatus.Text = "        ";
+            this.labelStatus.Click += new System.EventHandler(this.label_Click);
+            // 
+            // labelCurrent
+            // 
+            this.labelCurrent.AutoSize = true;
+            this.labelCurrent.Dock = System.Windows.Forms.DockStyle.Top;
+            this.labelCurrent.Location = new System.Drawing.Point(18, 17);
+            this.labelCurrent.Margin = new System.Windows.Forms.Padding(0);
+            this.labelCurrent.Name = "labelCurrent";
+            this.labelCurrent.Size = new System.Drawing.Size(53, 12);
+            this.labelCurrent.TabIndex = 5;
+            this.labelCurrent.Text = "        ";
+            this.labelCurrent.Click += new System.EventHandler(this.label_Click);
             // 
             // StatusItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
+            this.Controls.Add(this.labelCurrent);
             this.Controls.Add(this.labelStatus);
             this.Controls.Add(this.panelRight);
             this.Controls.Add(this.panelLeft);
@@ -116,6 +131,7 @@ namespace fsm
             this.Controls.SetChildIndex(this.panelLeft, 0);
             this.Controls.SetChildIndex(this.panelRight, 0);
             this.Controls.SetChildIndex(this.labelStatus, 0);
+            this.Controls.SetChildIndex(this.labelCurrent, 0);
             this.panelLeft.ResumeLayout(false);
             this.panelLeft.PerformLayout();
             this.panelRight.ResumeLayout(false);
@@ -132,6 +148,7 @@ namespace fsm
         private System.Windows.Forms.Panel panelRight;
         private System.Windows.Forms.Label labelOut;
         private System.Windows.Forms.Label labelStatus;
+        private System.Windows.Forms.Label labelCurrent;
 
     }
 }
