@@ -95,11 +95,11 @@ namespace fsm {
 		bool empty(void) const {
 			for(int i = 0; i < size; ++i) {
 				if(raw[i] != 0) {
-					return true;
+					return false;
 				}
 			}
 
-			return false;
+			return true;
 		}
 
 		Bitset<N> &operator =(const Bitset<N> &_other) {
@@ -203,6 +203,8 @@ namespace fsm {
 	class FSM {
 
 	public:
+		typedef Bitset<_Nc> ConditionType;
+
 		class StepHandler {
 
 		public:
@@ -579,6 +581,66 @@ namespace fsm {
 			}
 
 			return _result;
+		}
+
+		int getStatusCount(void) const {
+			return _Ns;
+		}
+
+		const _Tc &getStatusTag(int _index) const {
+			assert(_index >= 0 && _index < _Nc);
+			if(!(_index >= 0 && _index < _Nc)) {
+				throw std::exception("Invalid index");
+			}
+
+			return ruleSteps[_index].tag;
+		}
+
+		int getCommandCount(int _index) const {
+			assert(_index >= 0 && _index < _Nc);
+			if(!(_index >= 0 && _index < _Nc)) {
+				throw std::exception("Invalid index");
+			}
+
+			return ruleSteps[_index].steps.size();
+		}
+
+		const Bitset<_Nc> &getStepCommandCondition(int _index, int _step) const {
+			if(!_ensureIndexAndStepIndexValid(_index, _step)) {
+				throw std::exception("Invalid index");
+			}
+
+			return ruleSteps[_index].steps[_step].condition;
+		}
+
+		int getStepCommandNext(int _index, int _step) const {
+			if(!_ensureIndexAndStepIndexValid(_index, _step)) {
+				throw std::exception("Invalid index");
+			}
+
+			return ruleSteps[_index].steps[_step].next;
+		}
+
+		bool getStepCommandExact(int _index, int _step) const {
+			if(!_ensureIndexAndStepIndexValid(_index, _step)) {
+				throw std::exception("Invalid index");
+			}
+
+			return ruleSteps[_index].steps[_step].exact;
+		}
+
+	private:
+		bool _ensureIndexAndStepIndexValid(int _index, int _step) const {
+			assert(_index >= 0 && _index < _Nc);
+			if(!(_index >= 0 && _index < _Nc)) {
+				return false;
+			}
+			assert(_step >= 0 && _step < (int)ruleSteps[_index].steps.size());
+			if(!(_step >= 0 && _step < (int)ruleSteps[_index].steps.size())) {
+				return false;
+			}
+
+			return true;
 		}
 
 	private:

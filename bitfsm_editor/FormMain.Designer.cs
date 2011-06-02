@@ -40,6 +40,7 @@ namespace fsm
             this.components = new System.ComponentModel.Container();
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
             this.menuFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuClear = new System.Windows.Forms.ToolStripMenuItem();
             this.menuLoad = new System.Windows.Forms.ToolStripMenuItem();
             this.menuSave = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -54,7 +55,6 @@ namespace fsm
             this.menuStatus = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuSetBegin = new System.Windows.Forms.ToolStripMenuItem();
             this.menuSetTerminal = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuClear = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStripMain.SuspendLayout();
             this.menuRelation.SuspendLayout();
             this.menuStatus.SuspendLayout();
@@ -82,6 +82,14 @@ namespace fsm
             this.menuFile.Name = "menuFile";
             this.menuFile.Size = new System.Drawing.Size(39, 21);
             this.menuFile.Text = "&File";
+            // 
+            // menuClear
+            // 
+            this.menuClear.Name = "menuClear";
+            this.menuClear.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
+            this.menuClear.Size = new System.Drawing.Size(152, 22);
+            this.menuClear.Text = "&Clear";
+            this.menuClear.Click += new System.EventHandler(this.menuClear_Click);
             // 
             // menuLoad
             // 
@@ -183,13 +191,6 @@ namespace fsm
             this.menuSetTerminal.Size = new System.Drawing.Size(162, 22);
             this.menuSetTerminal.Text = "Set as &terminal";
             this.menuSetTerminal.Click += new System.EventHandler(this.menuSetTerminal_Click);
-            // 
-            // menuClear
-            // 
-            this.menuClear.Name = "menuClear";
-            this.menuClear.Size = new System.Drawing.Size(152, 22);
-            this.menuClear.Text = "&Clear";
-            this.menuClear.Click += new System.EventHandler(this.menuClear_Click);
             // 
             // FormMain
             // 

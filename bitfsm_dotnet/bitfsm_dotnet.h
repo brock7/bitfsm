@@ -43,7 +43,10 @@ namespace fsm {
 		int operator ()(const std::string &_obj);
 	};
 
-	typedef fsm::FSM<256, 256, std::string, ObjToStatus, ObjToCommand> Fsm;
+	static const int STATUS_COUNT = 256;
+	static const int COMMAND_COUNT = 256;
+
+	typedef fsm::FSM<STATUS_COUNT, COMMAND_COUNT, std::string, ObjToStatus, ObjToCommand> Fsm;
 
 	typedef void(* ManagedStepHandlerPtr)(const std::string &_srcTag, const std::string &_tgtTag);
 
@@ -70,6 +73,7 @@ namespace fsm {
 	};
 
 	typedef Dictionary<String^, Int32> Dict;
+	typedef Dictionary<Int32, String^> Bank;
 
 	public ref class Bitfsm {
 
@@ -131,11 +135,19 @@ namespace fsm {
 		Boolean walk(String^ _cmd, Boolean _exact);
 		Boolean terminated();
 
+		Int32 getStatusCount();
+		String^ getStatusTag(Int32 _index);
+		Int32 getCommandCount(Int32 _index);
+		List<String^>^ getStepCommandCondition(Int32 _index, Int32 _step);
+		Int32 getStepCommandNext(Int32 _index, Int32 _step);
+		Boolean getStepCommandExact(Int32 _index, Int32 _step);
+
 		Void onStep(const std::string &_srcTag, const std::string &_tgtTag);
 
 	protected:
 		Dict^ statusColl;
 		Dict^ commandColl;
+		Bank^ commandBank;
 		Fsm* fsm;
 		MyTagStreamer* streamer;
 		MyStepHandler* handler;

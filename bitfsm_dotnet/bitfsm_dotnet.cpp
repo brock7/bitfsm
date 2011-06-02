@@ -132,15 +132,18 @@ namespace fsm {
 		fsm->setStepHandler(handler);
 		fsm->setTagStreamer(streamer);
 
-		statusColl = gcnew Dictionary<String^, Int32>();
-		commandColl = gcnew Dictionary<String^, Int32>();
+		statusColl = gcnew Dict();
+		commandColl = gcnew Dict();
+		commandBank = gcnew Bank();
 	}
 
 	Bitfsm::~Bitfsm() {
 		statusColl->Clear();
 		commandColl->Clear();
+		commandBank->Clear();
 		statusColl = nullptr;
 		commandColl = nullptr;
+		commandBank = nullptr;
 
 		delete fsm; fsm = 0;
 		delete streamer; streamer = 0;
@@ -172,11 +175,13 @@ namespace fsm {
 
 		ConfigFile::iterator _cit = Config::getSingleton().getCommandCfg().begin();
 		while(_cit != Config::getSingleton().getCommandCfg().end()) {
-			const std::string &_key = _cit->first;
+			const std::string &_keyStr = _cit->first;
 			int _val = -1;
-			Config::getSingleton().getCommandCfg().getData(_key, _val);
+			Config::getSingleton().getCommandCfg().getData(_keyStr, _val);
 
-			commandColl->Add(gcnew String(_key.c_str()), _val);
+			String^ _key = gcnew String(_keyStr.c_str());
+			commandColl->Add(_key, _val);
+			commandBank->Add(_val, _key);
 
 			++_cit;
 		}
@@ -263,6 +268,41 @@ namespace fsm {
 
 	Boolean Bitfsm::terminated() {
 		return fsm->terminated();
+	}
+
+	Int32 Bitfsm::getStatusCount() {
+		return fsm->getStatusCount();
+	}
+
+	String^ Bitfsm::getStatusTag(Int32 _index) {
+		return gcnew String(fsm->getStatusTag(_index).c_str());
+	}
+
+	Int32 Bitfsm::getCommandCount(Int32 _index) {
+		return fsm->getCommandCount(_index);
+	}
+
+	List<String^>^ Bitfsm::getStepCommandCondition(Int32 _index, Int32 _step) {
+		List<String^>^ _cond = gcnew List<String^>();
+
+		const Fsm::ConditionType &_condBits = fsm->getStepCommandCondition(_index, _step);
+		for(int _i = 0; _i < COMMAND_COUNT; ++_i) {
+			Fsm::ConditionType _bits; _bits.set(_i);
+			if(_condBits & _bits) {
+				String^ _cmdStr = commandBank[_i];
+				_cond->Add(_cmdStr);
+			}
+		}
+
+		return _cond;
+	}
+
+	Int32 Bitfsm::getStepCommandNext(Int32 _index, Int32 _step) {
+		return fsm->getStepCommandNext(_index, _step);
+	}
+
+	Boolean Bitfsm::getStepCommandExact(Int32 _index, Int32 _step) {
+		return fsm->getStepCommandExact(_index, _step);
 	}
 
 	Void Bitfsm::onStep(const std::string &_srcTag, const std::string &_tgtTag) {

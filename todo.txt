@@ -1,2 +1,2 @@
-load from a *.fsm file then relayout in editor.
+relayout in editor after load from a *.fsm file.
 better relation curve rendering.

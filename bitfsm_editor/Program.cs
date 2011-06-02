@@ -44,8 +44,15 @@ namespace fsm
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            form = new FormMain();
-            Application.Run(form);
+            try
+            {
+                form = new FormMain();
+                Application.Run(form);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(null, e.Message, "Bitfsm Editor", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

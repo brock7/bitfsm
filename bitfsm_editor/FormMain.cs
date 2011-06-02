@@ -83,6 +83,30 @@ namespace fsm
             string globalCfg = Directory.GetParent(Application.ExecutablePath).FullName + "\\..\\global_config.cfg";
             string statusCfg = Directory.GetParent(Application.ExecutablePath).FullName + "\\..\\status_config.cfg";
             string commandCfg = Directory.GetParent(Application.ExecutablePath).FullName + "\\..\\command_config.cfg";
+            if (!File.Exists(globalCfg))
+            {
+                globalCfg = Directory.GetParent(Application.ExecutablePath).FullName + "\\global_config.cfg";
+                if (!File.Exists(globalCfg))
+                {
+                    throw new Exception("Cannot find file global_config.cfg");
+                }
+            }
+            if (!File.Exists(statusCfg))
+            {
+                statusCfg = Directory.GetParent(Application.ExecutablePath).FullName + "\\status_config.cfg";
+                if (!File.Exists(statusCfg))
+                {
+                    throw new Exception("Cannot find file status_config.cfg");
+                }
+            }
+            if (!File.Exists(commandCfg))
+            {
+                statusCfg = Directory.GetParent(Application.ExecutablePath).FullName + "\\command_config.cfg";
+                if (!File.Exists(commandCfg))
+                {
+                    throw new Exception("Cannot find file command_config.cfg");
+                }
+            }
             bitfsm.config(globalCfg, statusCfg, commandCfg);
 
             Dict statusColl = bitfsm.StatusColl;
@@ -118,14 +142,18 @@ namespace fsm
         private void menuAdd_Click(object sender, EventArgs e)
         {
             string text = (sender as ToolStripMenuItem).Text;
+            addStatusItem(text);
+        }
 
+        StatusItem addStatusItem(string text)
+        {
             foreach (Control c in Controls)
             {
                 if (c.Name == text)
                 {
                     MessageBox.Show(this, "A status item named " + text + " already exists", "Bitfsm Editor", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    return;
+                    return null;
                 }
             }
 
@@ -189,6 +217,8 @@ namespace fsm
                         menuStatus.Show(si, 30, 20);
                     }
                 };
+
+            return si;
         }
 
         private void link(StatusItem src, StatusItem tgt)
@@ -196,42 +226,47 @@ namespace fsm
             FormCondition fc = new FormCondition(bitfsm);
             if (DialogResult.OK == fc.ShowDialog(this))
             {
-                if (bitfsm.addRuleStep(src.Name, fc.Commands.ToArray(), tgt.Name, fc.Exact))
-                {
-                    string ln = "DUMMY_" + src.Name + "_" + tgt.Name;
-                    Label dummy = null;
-                    if (!Controls.ContainsKey(ln))
-                    {
-                        dummy = new Label();
-                        dummy.Name = ln;
-                        dummy.AutoSize = true;
-                        dummy.TextAlign = ContentAlignment.MiddleCenter;
-                        dummy.BorderStyle = BorderStyle.FixedSingle;
-                        dummy.MouseDown += (_sender, _e) =>
-                            {
-                                if (_e.Button == MouseButtons.Right)
-                                {
-                                    menuRelation.Tag = dummy;
-                                    menuRelation.Show(dummy, 30, 20);
-                                }
-                            };
-                        Controls.Add(dummy);
-                        dummy.Tag = new List<Relation>();
-                    }
-                    else
-                    {
-                        dummy = Controls[ln] as Label;
-                    }
-                    Relation r = new Relation(src, tgt, fc.Commands, fc.Exact);
-                    relations.Add(r);
-                    (dummy.Tag as List<Relation>).Add(r);
+                link(src, fc.Commands, tgt, fc.Exact, false);
+            }
+        }
 
-                    Refresh();
+        private void link(StatusItem src, HashSet<string> commands, StatusItem tgt, bool exact, bool force)
+        {
+            if (bitfsm.addRuleStep(src.Name, commands.ToArray(), tgt.Name, exact) || force)
+            {
+                string ln = "DUMMY_" + src.Name + "_" + tgt.Name;
+                Label dummy = null;
+                if (!Controls.ContainsKey(ln))
+                {
+                    dummy = new Label();
+                    dummy.Name = ln;
+                    dummy.AutoSize = true;
+                    dummy.TextAlign = ContentAlignment.MiddleCenter;
+                    dummy.BorderStyle = BorderStyle.FixedSingle;
+                    dummy.MouseDown += (_sender, _e) =>
+                        {
+                            if (_e.Button == MouseButtons.Right)
+                            {
+                                menuRelation.Tag = dummy;
+                                menuRelation.Show(dummy, 30, 20);
+                            }
+                        };
+                    Controls.Add(dummy);
+                    dummy.Tag = new List<Relation>();
                 }
                 else
                 {
-                    MessageBox.Show(this, "Command(s) add failed", "Bitfsm Editor", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    dummy = Controls[ln] as Label;
                 }
+                Relation r = new Relation(src, tgt, commands, exact);
+                relations.Add(r);
+                (dummy.Tag as List<Relation>).Add(r);
+
+                Refresh();
+            }
+            else
+            {
+                MessageBox.Show(this, "Command(s) add failed", "Bitfsm Editor", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -326,9 +361,42 @@ namespace fsm
             ofd.Filter = "Bitfsm save file(*.fsm)|*.fsm|(All files(*.*)|*.*";
             if (DialogResult.OK == ofd.ShowDialog(this))
             {
-                bitfsm.readRuleSteps(ofd.FileName);
+                menuClear_Click(sender, e);
 
-                // TODO
+                if (bitfsm.readRuleSteps(ofd.FileName))
+                {
+                    int sn = bitfsm.getStatusCount();
+                    for (int i = 0; i < sn; ++i)
+                    {
+                        int cn = bitfsm.getCommandCount(i);
+                        string srcStr = bitfsm.getStatusTag(i);
+                        for (int j = 0; j < cn; ++j)
+                        {
+                            bool exact = bitfsm.getStepCommandExact(i, j);
+                            int next = bitfsm.getStepCommandNext(i, j);
+                            List<string> condition = bitfsm.getStepCommandCondition(i, j);
+
+                            string tgtStr = bitfsm.getStatusTag(next);
+
+                            StatusItem src = Controls[srcStr] as StatusItem;
+                            StatusItem tgt = Controls[tgtStr] as StatusItem;
+                            if (src == null)
+                            {
+                                src = addStatusItem(srcStr);
+                            }
+                            if (tgt == null)
+                            {
+                                tgt = addStatusItem(tgtStr);
+                            }
+                            HashSet<string> commands = new HashSet<string>();
+                            foreach (string c in condition)
+                            {
+                                commands.Add(c);
+                            }
+                            link(src, commands, tgt, exact, true);
+                        }
+                    }
+                }
             }
         }
 
@@ -454,17 +522,23 @@ namespace fsm
 
         private void menuClear_Click(object sender, EventArgs e)
         {
+            List<Control> tobecleared = new List<Control>();
             foreach (Control c in Controls)
             {
-                if (c.GetType() == typeof(StatusItem))
+                if (c != menuStripMain)
                 {
-                    StatusItem sit = c as StatusItem;
-                    sit.SteppingText = string.Empty;
-                    sit.StatusText = string.Empty;
+                    tobecleared.Add(c);
                 }
             }
+            foreach (Control c in tobecleared)
+            {
+                Controls.Remove(c);
+            }
+            relations.Clear();
 
             bitfsm.clear();
+
+            Refresh();
         }
     }
 }

@@ -1,3 +1,8 @@
+June. 2 2011
+load from a *.fsm file.
+bugfix.
+new apis for editor.
+
 June. 1 2011
 implemented key features of editor.
 simulation in editor.
