@@ -101,7 +101,7 @@ namespace fsm
             }
             if (!File.Exists(commandCfg))
             {
-                statusCfg = Directory.GetParent(Application.ExecutablePath).FullName + "\\command_config.cfg";
+                commandCfg = Directory.GetParent(Application.ExecutablePath).FullName + "\\command_config.cfg";
                 if (!File.Exists(commandCfg))
                 {
                     throw new Exception("Cannot find file command_config.cfg");
