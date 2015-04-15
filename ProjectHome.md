@@ -1,0 +1,1 @@
+Tiny generic FSM implementation using bitset with editor.
